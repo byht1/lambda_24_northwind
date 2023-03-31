@@ -1,0 +1,5 @@
+31.03.2023 14:02:45 - select "id", "supplier_id", "company_name", "contact_name", "contact_title", "address", "city", "region", "postal_code", "country", "phone", "home_page" from "supplies" limit $1 offset $2
+31.03.2023 14:09:52 - select "id", "supplier_id", "company_name", "contact_name", "contact_title", "address", "city", "region", "postal_code", "country", "phone", "home_page" from "supplies" limit $1
+31.03.2023 14:40:42 - select "id", "order_id", "employee_id", "order_date", "required_date", "shipped_date", "ship_via", "freight", "ship_name", "ship_address", "ship_city", "ship_region", "ship_postal_code", "ship_country" from "orders" limit $1
+31.03.2023 14:55:18 - select "id", "employee_id", "last_name", "first_name", "title", "title_of_courtesy", "birth_date", "hire_date", "address", "city", "region", "postal_code", "country", "home_phone", "extension", "notes", "reports_to" from "employees" limit $1
+31.03.2023 15:13:50 - select "id", "customer_id", "company_name", "contact_name", "contact_title", "address", "city", "region", "postal_code", "country", "phone", "fax" from "customers" limit $1

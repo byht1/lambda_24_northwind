@@ -1,0 +1,11 @@
+export * from './customers.schema';
+export * from './employee-territories.schema copy';
+export * from './employees.schema';
+export * from './order-details.schema';
+export * from './orders.schema';
+export * from './products.schema';
+export * from './regions.schema';
+export * from './shippers.schema';
+export * from './supplies.schema';
+export * from './territories.schema';
+export * from './сategories.schema';
