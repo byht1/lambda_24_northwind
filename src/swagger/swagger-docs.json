@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "https://team-project-backend.onrender.com/api"
+      "url": "https://lambda-24-northwind.onrender.com"
     }
   ],
   "tags": [
