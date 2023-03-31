@@ -23,6 +23,7 @@ app.use('/api', suppliesRouter);
 app.use('/api', ordersRouter);
 app.use('/api', employeesRouter);
 app.use('/api', customersRouter);
+// app.use('/api', customersRouter);
 app.use('/', swaggerRouter);
 
 app.use((req, res) => {
