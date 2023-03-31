@@ -1,16 +1,16 @@
 import { TQuery } from 'modules/type';
 import { TRouterFn } from 'type';
-import { TCustomers } from 'db/schema';
 import { CustomersService } from './customers.service';
+import { TGetCustomersDB } from 'db/services/CustomersDB.service';
 
 interface ICustomersController {
-  getCustomers: TRouterFn<TCustomers[], TQuery>;
+  getCustomers: TRouterFn<TGetCustomersDB[], TQuery>;
 }
 
 export class CustomersController implements ICustomersController {
   constructor(private customersService: CustomersService = new CustomersService()) {}
 
-  getCustomers: TRouterFn<TCustomers[], TQuery> = async (req, res) => {
+  getCustomers: TRouterFn<TGetCustomersDB[], TQuery> = async (req, res) => {
     const query = req.query;
     const customers = await this.customersService.getCustomers(query);
 

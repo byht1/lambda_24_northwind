@@ -1,9 +1,12 @@
 import { InferModel } from 'drizzle-orm';
 import { integer, pgTable, serial, varchar, uuid, numeric } from 'drizzle-orm/pg-core';
+import { orderDetails } from './order-details.schema';
 
 export const orders = pgTable('orders', {
   id: uuid('id').defaultRandom().primaryKey(),
-  orderId: serial('order_id').notNull(),
+  orderId: serial('order_id')
+    .notNull()
+    .references(() => orderDetails.orderId),
   employeeId: serial('employee_id').notNull(),
   orderDate: varchar('order_date').notNull(),
   requiredDate: varchar('required_date').notNull(),

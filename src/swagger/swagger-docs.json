@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "https://lambda-24-northwind.onrender.com"
+      "url": "https://lambda-24-northwind.onrender.com "
     }
   ],
   "tags": [
@@ -34,9 +34,7 @@
         "description": "Retrieve a list of products. You can filter the results by using query parameters.",
         "parameters": [
           { "$ref": "#/components/schemas/QueryPage" },
-          { "$ref": "#/components/schemas/QueryLimit" },
-          { "$ref": "#/components/schemas/QueryPickSelect" },
-          { "$ref": "#/components/schemas/QueryOmitSelect" }
+          { "$ref": "#/components/schemas/QueryLimit" }
         ],
         "responses": {
           "200": {
@@ -68,9 +66,7 @@
         "description": "Retrieve a list of supplies. You can filter the results by using query parameters.",
         "parameters": [
           { "$ref": "#/components/schemas/QueryPage" },
-          { "$ref": "#/components/schemas/QueryLimit" },
-          { "$ref": "#/components/schemas/QueryPickSelect" },
-          { "$ref": "#/components/schemas/QueryOmitSelect" }
+          { "$ref": "#/components/schemas/QueryLimit" }
         ],
         "responses": {
           "200": {
@@ -102,9 +98,7 @@
         "description": "Retrieve a list of orders. You can filter the results by using query parameters.",
         "parameters": [
           { "$ref": "#/components/schemas/QueryPage" },
-          { "$ref": "#/components/schemas/QueryLimit" },
-          { "$ref": "#/components/schemas/QueryPickSelect" },
-          { "$ref": "#/components/schemas/QueryOmitSelect" }
+          { "$ref": "#/components/schemas/QueryLimit" }
         ],
         "responses": {
           "200": {
@@ -136,9 +130,7 @@
         "description": "Retrieve a list of employees. You can filter the results by using query parameters.",
         "parameters": [
           { "$ref": "#/components/schemas/QueryPage" },
-          { "$ref": "#/components/schemas/QueryLimit" },
-          { "$ref": "#/components/schemas/QueryPickSelect" },
-          { "$ref": "#/components/schemas/QueryOmitSelect" }
+          { "$ref": "#/components/schemas/QueryLimit" }
         ],
         "responses": {
           "200": {
@@ -170,9 +162,7 @@
         "description": "Retrieve a list of customers. You can filter the results by using query parameters.",
         "parameters": [
           { "$ref": "#/components/schemas/QueryPage" },
-          { "$ref": "#/components/schemas/QueryLimit" },
-          { "$ref": "#/components/schemas/QueryPickSelect" },
-          { "$ref": "#/components/schemas/QueryOmitSelect" }
+          { "$ref": "#/components/schemas/QueryLimit" }
         ],
         "responses": {
           "200": {
@@ -239,21 +229,9 @@
             "type": "string",
             "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
           },
-          "productId": {
-            "type": "integer",
-            "example": 5
-          },
           "productName": {
             "type": "string",
             "example": "Chef Anton's Gumbo Mix"
-          },
-          "supplierId": {
-            "type": "integer",
-            "example": 2
-          },
-          "categoryId": {
-            "type": "integer",
-            "example": 2
           },
           "quantityPerUnit": {
             "type": "string",
@@ -270,14 +248,6 @@
           "unitsOnOrder": {
             "type": "integer",
             "example": 0
-          },
-          "reorderLevel": {
-            "type": "integer",
-            "example": 0
-          },
-          "discontinued": {
-            "type": "integer",
-            "example": 1
           }
         }
       },
@@ -287,10 +257,6 @@
           "id": {
             "type": "string",
             "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
-          },
-          "supplierId": {
-            "type": "integer",
-            "example": 5
           },
           "companyName": {
             "type": "string",
@@ -308,25 +274,9 @@
             "type": "string",
             "example": "Oviedo"
           },
-          "region": {
-            "type": "string",
-            "example": "Asturias"
-          },
-          "postalCode": {
-            "type": "string",
-            "example": "33007"
-          },
           "country": {
             "type": "string",
             "example": "Spain"
-          },
-          "reorderLevel": {
-            "type": "string",
-            "example": "(98) 598 76 54"
-          },
-          "discontinued": {
-            "type": "string",
-            "example": "Plutzer (on the World Wide Web)#http://www.microsoft.com/accessdev/sampleapps/plutzer.htm#"
           }
         }
       },
@@ -341,53 +291,33 @@
             "type": "integer",
             "example": 10248
           },
-          "employeeId": {
+          "productId": {
             "type": "integer",
             "example": 5
-          },
-          "orderDate": {
-            "type": "string",
-            "example": "1996-07-04 00:00:00.000"
-          },
-          "requiredDate": {
-            "type": "string",
-            "example": "1996-08-01 00:00:00.000"
           },
           "shippedDate": {
             "type": "string",
             "example": "1996-08-01 00:00:00.000"
           },
-          "shipVia": {
-            "type": "integer",
-            "example": 3
-          },
-          "freight": {
-            "type": "string",
-            "example": "32.38"
-          },
           "shipName": {
             "type": "string",
             "example": "Vins et alcools Chevalier"
-          },
-          "shipAddress": {
-            "type": "string",
-            "example": "59 rue de l-Abbaye"
           },
           "shipCity": {
             "type": "string",
             "example": "Reims"
           },
-          "shipRegion": {
-            "type": "string",
-            "example": "RJ"
-          },
-          "shipPostalCode": {
-            "type": "string",
-            "example": "51100"
-          },
           "shipCountry": {
             "type": "string",
             "example": "France"
+          },
+          "totalPrice": {
+            "type": "integer",
+            "example": 168
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 12
           }
         }
       },
@@ -398,69 +328,21 @@
             "type": "string",
             "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
           },
-          "employeeId": {
+          "name": {
             "type": "string",
-            "example": "5"
-          },
-          "lastName": {
-            "type": "string",
-            "example": "Davolio"
-          },
-          "firstName": {
-            "type": "string",
-            "example": "Nancy"
+            "example": "Nancy Davolio"
           },
           "title": {
             "type": "string",
             "example": "Sales Representative"
           },
-          "titleOfCourtesy": {
-            "type": "string",
-            "example": "Ms."
-          },
-          "birthDate": {
-            "type": "string",
-            "example": "1948-12-08"
-          },
-          "hireDate": {
-            "type": "string",
-            "example": "1992-05-01"
-          },
-          "address": {
-            "type": "string",
-            "example": "507 - 20th Ave. E.Apt. 2A"
-          },
           "city": {
             "type": "string",
             "example": "Seattle"
           },
-          "region": {
-            "type": "string",
-            "example": "WA"
-          },
-          "postalCode": {
-            "type": "string",
-            "example": "98122"
-          },
-          "country": {
-            "type": "string",
-            "example": "USA"
-          },
           "homePhone": {
             "type": "string",
             "example": "(206) 555-9857"
-          },
-          "extension": {
-            "type": "integer",
-            "example": 5467
-          },
-          "notes": {
-            "type": "string",
-            "example": "Education includes a BA in psychology from Colorado State University in 1970.  She also completed \"The Art of the Cold Call.\"  Nancy is a member of Toastmasters International."
-          },
-          "reportsTo": {
-            "type": "integer",
-            "example": 2
           }
         }
       },
@@ -470,10 +352,6 @@
           "id": {
             "type": "string",
             "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
-          },
-          "customerId": {
-            "type": "string",
-            "example": "ALFKI"
           },
           "companyName": {
             "type": "string",
@@ -487,33 +365,13 @@
             "type": "string",
             "example": "Sales Representative"
           },
-          "address": {
-            "type": "string",
-            "example": "Obere Str. 57"
-          },
           "city": {
             "type": "string",
             "example": "Berlin"
           },
-          "region": {
-            "type": "string",
-            "example": "BC"
-          },
-          "postalCode": {
-            "type": "string",
-            "example": "98122"
-          },
           "country": {
             "type": "string",
             "example": "USA"
-          },
-          "phone": {
-            "type": "string",
-            "example": "030-0074321"
-          },
-          "fax": {
-            "type": "string",
-            "example": "030-0074321"
           }
         }
       }
