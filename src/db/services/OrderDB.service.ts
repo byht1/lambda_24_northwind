@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm/expressions';
+import { eq, inArray } from 'drizzle-orm/expressions';
 
-import { orderDetails, orders, TableOrders, TOrders } from 'db/schema';
+import { customers, orderDetails, orders, shippers, TableOrders, TOrders } from 'db/schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { sql } from 'drizzle-orm';
 
@@ -60,5 +60,44 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
     ]);
 
     return { ...totalElementsAndPages, orders: queryOrders };
+  };
+
+  getOrderById = async (searchId: number) => {
+    const { id, orderId, shipVia, _, employeeId, shipName, ...order } = this.table;
+    const queryOrderPromise = this.db
+      .select({
+        id,
+        orderId,
+        ...order,
+        shipVia: shippers.companyName,
+        shipPhone: shippers.phone,
+        shipName,
+        customerId: customers.customerId,
+        totalPrice:
+          sql<number>`ROUND(SUM(${orderDetails.unitPrice} * ${orderDetails.quantity}),2)`.mapWith(
+            it => +it
+          ),
+        quantity: sql<number>`SUM(${orderDetails.quantity})`.mapWith(it => +it),
+        products: sql<number>`COUNT(${orderDetails.productId})`.mapWith(it => +it),
+      })
+      .from(this.table)
+      .where(eq(orderId, searchId))
+      .leftJoin(orderDetails, eq(orderId, orderDetails.orderId))
+      .leftJoin(shippers, eq(shipVia, shippers.shipperId))
+      .leftJoin(customers, eq(shipName, customers.companyName))
+      .groupBy(
+        orderDetails.orderId,
+        orderId,
+        id,
+        shippers.companyName,
+        shippers.phone,
+        customers.customerId
+      );
+
+    const definitionQueryStatement = this.getQueryStringAndLog(queryOrderPromise);
+
+    const [queryOrder] = await Promise.all([queryOrderPromise, definitionQueryStatement]);
+
+    return queryOrder[0];
   };
 }

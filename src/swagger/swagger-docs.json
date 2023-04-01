@@ -114,6 +114,28 @@
         }
       }
     },
+    "/api/orders/{orderId}": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get order by id",
+        "description": "Get order by id for detailed information",
+        "responses": {
+          "200": {
+            "description": "A list of orders.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderId"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/api/employees": {
       "get": {
         "tags": ["Employees"],
@@ -348,6 +370,124 @@
                 "shipCity": {
                   "type": "string",
                   "example": "Reims"
+                }
+              }
+            }
+          }
+        }
+      },
+      "OrderId": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+              },
+              "orderId": {
+                "type": "integer",
+                "example": 10248
+              },
+              "orderDate": {
+                "type": "string",
+                "example": "1996-07-04 00:00:00.000"
+              },
+              "requiredDate": {
+                "type": "string",
+                "example": "1996-07-04 00:00:00.000"
+              },
+              "shippedDate": {
+                "type": "string",
+                "example": "1996-07-04 00:00:00.000"
+              },
+              "freight": {
+                "type": "string",
+                "example": "32.38"
+              },
+              "shipAddress": {
+                "type": "string",
+                "example": "59 rue de l-Abbaye"
+              },
+              "shipCity": {
+                "type": "string",
+                "example": "Reims"
+              },
+              "shipRegion": {
+                "type": "string",
+                "example": "Western Europe"
+              },
+              "shipPostalCode": {
+                "type": "string",
+                "example": "51100"
+              },
+              "shipCountry": {
+                "type": "string",
+                "example": "France"
+              },
+              "shipVia": {
+                "type": "string",
+                "example": "Federal Shipping"
+              },
+              "shipPhone": {
+                "type": "string",
+                "example": "(503) 555-9931"
+              },
+              "shipName": {
+                "type": "string",
+                "example": "Vins et alcools Chevalier"
+              },
+              "customerId": {
+                "type": "string",
+                "example": "VINET"
+              },
+              "totalPrice": {
+                "type": "integer",
+                "example": 440
+              },
+              "quantity": {
+                "type": "integer",
+                "example": 27
+              },
+              "products": {
+                "type": "integer",
+                "example": 3
+              }
+            }
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "70470d8f-a813-4b9e-8d74-2ba763517909"
+                },
+                "totalPrice": {
+                  "type": "integer",
+                  "example": 440
+                },
+                "quantity": {
+                  "type": "integer",
+                  "example": 27
+                },
+                "unitPrice": {
+                  "type": "string",
+                  "example": "27"
+                },
+                "discount": {
+                  "type": "string",
+                  "example": "5"
+                },
+                "productName": {
+                  "type": "string",
+                  "example": "Queso Cabrales"
+                },
+                "productId": {
+                  "type": "integer",
+                  "example": 27
                 }
               }
             }

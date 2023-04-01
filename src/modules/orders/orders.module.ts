@@ -6,8 +6,9 @@ import { OrdersController } from './orders.controller';
 
 const router = express.Router();
 const breakpointName = 'orders';
-const { getOrders } = new OrdersController();
+const { getOrders, getOrderId } = new OrdersController();
 
 router.get(`/${breakpointName}`, validate(ordersQueryParamsDto), ctrlWrapper(getOrders));
+router.get(`/${breakpointName}/:searchId`, ctrlWrapper(getOrderId));
 
 export const ordersRouter = router;

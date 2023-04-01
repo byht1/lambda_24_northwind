@@ -5,6 +5,7 @@ import { TGetOrdersDB } from 'db/services/OrderDB.service';
 
 interface IOrdersController {
   getOrders: TRouterFn<TGetOrdersDB, TQuery>;
+  getOrderId: TRouterFn<any, void, { searchId: string }>;
 }
 
 export class OrdersController implements IOrdersController {
@@ -15,5 +16,12 @@ export class OrdersController implements IOrdersController {
     const orders = await this.ordersService.getOrders(query);
 
     return res.json(orders);
+  };
+
+  getOrderId: TRouterFn<any, void, { searchId: string }> = async (req, res) => {
+    const { searchId } = req.params;
+    const order = await this.ordersService.getOrderId(+searchId);
+
+    return res.json(order);
   };
 }
