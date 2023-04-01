@@ -1,15 +1,16 @@
 import { TQuery } from 'modules/type';
 import { TRouterFn } from 'type';
-import { OrdersService, TGetOrders } from './orders.service';
+import { OrdersService } from './orders.service';
+import { TGetOrdersDB } from 'db/services/OrderDB.service';
 
 interface IOrdersController {
-  getOrders: TRouterFn<TGetOrders[], TQuery>;
+  getOrders: TRouterFn<TGetOrdersDB, TQuery>;
 }
 
 export class OrdersController implements IOrdersController {
   constructor(private ordersService: OrdersService = new OrdersService()) {}
 
-  getOrders: TRouterFn<TGetOrders[], TQuery> = async (req, res) => {
+  getOrders: TRouterFn<TGetOrdersDB, TQuery> = async (req, res) => {
     const query = req.query;
     const orders = await this.ordersService.getOrders(query);
 

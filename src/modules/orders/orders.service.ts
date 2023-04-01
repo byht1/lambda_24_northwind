@@ -1,45 +1,20 @@
+import e from 'cors';
 import { TOrders, TSupplies } from 'db/schema';
-import { OrderDB } from 'db/services/OrderDB.service';
+import { OrderDB, TGetOrdersDB } from 'db/services/OrderDB.service';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
-
-export type TGetOrders = {
-  totalPrice: number;
-  quantity: number | null;
-  id: string;
-  orderId: number;
-  productId: number | null;
-  shippedDate: string | null;
-  shipName: string;
-  shipCountry: string;
-  shipCity: string;
-};
+import { roundedNumber } from '../../helpers/roundedNumber';
 
 interface IOrdersService {
-  getOrders: (...args: [TQuery]) => Promise<TGetOrders[]>;
+  getOrders: (...args: [TQuery]) => Promise<TGetOrdersDB>;
 }
 
 export class OrdersService implements IOrdersService {
   constructor(private orderDB: OrderDB = new OrderDB()) {}
 
-  async getOrders(query: TQuery): Promise<TGetOrders[]> {
+  async getOrders(query: TQuery): Promise<TGetOrdersDB> {
     const params = formatQueryParams(query);
     const orders = await this.orderDB.getOrders(params);
-    const updateDateOrders = orders.map(({ unitPrice, quantity, ...order }) => {
-      const totalPrice = this.calcTotalPrise(unitPrice, quantity);
-      return {
-        ...order,
-        totalPrice,
-        quantity,
-      };
-    });
-
-    return updateDateOrders;
+    return orders;
   }
-
-  private calcTotalPrise = (unitPrice: string | null, quantity: number | null) => {
-    if (unitPrice && quantity) return +unitPrice * quantity;
-
-    return 0;
-  };
 }

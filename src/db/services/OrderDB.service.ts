@@ -2,17 +2,23 @@ import { eq } from 'drizzle-orm/expressions';
 
 import { orderDetails, orders, TableOrders, TOrders } from 'db/schema';
 import { TableDB, TParams } from './tableDB.service';
+import { sql } from 'drizzle-orm';
 
-export type TGetOrdersDB = {
-  id: string;
+type TOrdersResponse = {
   orderId: number;
-  unitPrice: string | null;
-  quantity: number | null;
-  productId: number | null;
+  id: string;
+  totalPrice: number;
+  quantity: number;
+  products: number;
   shippedDate: string | null;
   shipName: string;
   shipCountry: string;
   shipCity: string;
+};
+
+export type TGetOrdersDB = {
+  length: number;
+  orders: TOrdersResponse[];
 };
 
 export class OrderDB extends TableDB<TOrders, TableOrders> {
@@ -20,30 +26,39 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
     super(orders);
   }
 
-  getOrders = async (params: TParams): Promise<TGetOrdersDB[]> => {
+  getOrders = async (params: TParams): Promise<TGetOrdersDB> => {
     const { id, orderId, shippedDate, shipName, shipCity, shipCountry } = this.table;
-    const { unitPrice, quantity, productId } = orderDetails;
     const { limit, offset } = params;
-    const query = this.db
+    const queryOrdersPromise = this.db
       .select({
         id,
         orderId,
-        unitPrice,
-        quantity,
-        productId,
+        totalPrice:
+          sql<number>`ROUND(SUM(${orderDetails.unitPrice} * ${orderDetails.quantity}),2)`.mapWith(
+            it => +it
+          ),
+        quantity: sql<number>`SUM(${orderDetails.quantity})`.mapWith(it => +it),
+        products: sql<number>`COUNT(${orderDetails.productId})`.mapWith(it => +it),
         shippedDate,
         shipName,
         shipCountry,
         shipCity,
       })
       .from(this.table)
-      .leftJoin(orderDetails, eq(this.table.orderId, orderDetails.orderId))
+      .leftJoin(orderDetails, eq(orderId, orderDetails.orderId))
+      .groupBy(orderDetails.orderId, orderId, id)
+      .orderBy(orderId)
       .limit(limit)
       .offset(offset);
 
-    const { sql } = query.toSQL();
-    await this.logLastSqlQuery(sql);
+    const maxLength = this.db
+      .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
+      .from(this.table);
 
-    return query;
+    const [length, queryOrders] = await Promise.all([maxLength, queryOrdersPromise]);
+    const { sql: sqlString } = queryOrdersPromise.toSQL();
+    await this.logLastSqlQuery(sqlString);
+
+    return { length: length[0].count, orders: queryOrders };
   };
 }

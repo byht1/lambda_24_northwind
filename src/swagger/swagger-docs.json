@@ -106,10 +106,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Orders"
-                  }
+                  "$ref": "#/components/schemas/Orders"
                 }
               }
             }
@@ -283,41 +280,53 @@
       "Orders": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
-          },
-          "orderId": {
+          "length": {
             "type": "integer",
-            "example": 10248
+            "example": 830
           },
-          "productId": {
-            "type": "integer",
-            "example": 5
-          },
-          "shippedDate": {
-            "type": "string",
-            "example": "1996-08-01 00:00:00.000"
-          },
-          "shipName": {
-            "type": "string",
-            "example": "Vins et alcools Chevalier"
-          },
-          "shipCity": {
-            "type": "string",
-            "example": "Reims"
-          },
-          "shipCountry": {
-            "type": "string",
-            "example": "France"
-          },
-          "totalPrice": {
-            "type": "integer",
-            "example": 168
-          },
-          "quantity": {
-            "type": "integer",
-            "example": 12
+          "orders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "70470d8f-a813-4b9e-8d74-2ba763517909"
+                },
+                "orderId": {
+                  "type": "integer",
+                  "example": 10248
+                },
+                "totalPrice": {
+                  "type": "number",
+                  "example": 440
+                },
+                "quantity": {
+                  "type": "integer",
+                  "example": 27
+                },
+                "products": {
+                  "type": "integer",
+                  "example": 3
+                },
+                "shippedDate": {
+                  "type": "string",
+                  "example": "1996-07-16 00:00:00.000"
+                },
+                "shipName": {
+                  "type": "string",
+                  "example": "Vins et alcools Chevalier"
+                },
+                "shipCountry": {
+                  "type": "string",
+                  "example": "France"
+                },
+                "shipCity": {
+                  "type": "string",
+                  "example": "Reims"
+                }
+              }
+            }
           }
         }
       },
