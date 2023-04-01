@@ -25,11 +25,14 @@ export class SuppliesDB extends TableDB<TSupplies, TableSupplies> {
       .offset(offset);
 
     const maxDBElements = this.getMaxElementsCount(limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(querySuppliesPromise);
 
-    const [length, querySupplies] = await Promise.all([maxDBElements, querySuppliesPromise]);
-    const { sql: sqlString } = querySuppliesPromise.toSQL();
-    await this.logLastSqlQuery(sqlString);
+    const [totalElementsAndPages, querySupplies] = await Promise.all([
+      maxDBElements,
+      querySuppliesPromise,
+      definitionQueryStatement,
+    ]);
 
-    return { ...length, supplies: querySupplies };
+    return { ...totalElementsAndPages, supplies: querySupplies };
   };
 }

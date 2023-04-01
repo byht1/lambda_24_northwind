@@ -1,6 +1,4 @@
-import { join as pathJoin } from 'path';
-import { writeFile, readFile } from 'fs/promises';
-import { connect } from 'db/connectDB';
+import { getDrizzle } from 'db/connectDB';
 import {
   TableCategories,
   TableCustomers,
@@ -38,14 +36,14 @@ type TTable<T> = T extends
   : never;
 
 export type TCalcPage = {
-  length: number;
+  totalElementsFromDB: number;
   maxPage: number;
 };
 
 export class TableDB<T, D> extends DatabaseLogger {
   public columnsName: Array<keyof typeof this.table>;
 
-  constructor(public table: TTable<D>, public db = connect()) {
+  constructor(public table: TTable<D>, public db = getDrizzle()) {
     super();
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
@@ -54,9 +52,9 @@ export class TableDB<T, D> extends DatabaseLogger {
     const maxDBElements = await this.db
       .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
       .from(this.table);
-    const length = maxDBElements[0].count;
-    const maxPage = length / limit;
+    const totalElementsFromDB = maxDBElements[0].count;
+    const maxPage = Math.ceil(totalElementsFromDB / limit);
 
-    return { length, maxPage };
+    return { totalElementsFromDB, maxPage };
   };
 }

@@ -23,12 +23,16 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
       .from(this.table)
       .limit(limit)
       .offset(offset);
+
     const maxDBElements = this.getMaxElementsCount(limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(queryProductsPromise);
 
-    const [length, queryPromise] = await Promise.all([maxDBElements, queryProductsPromise]);
-    const { sql: sqlString } = queryProductsPromise.toSQL();
-    await this.logLastSqlQuery(sqlString);
+    const [totalElementsAndPages, queryPromise] = await Promise.all([
+      maxDBElements,
+      queryProductsPromise,
+      definitionQueryStatement,
+    ]);
 
-    return { ...length, products: queryPromise };
+    return { ...totalElementsAndPages, products: queryPromise };
   };
 }

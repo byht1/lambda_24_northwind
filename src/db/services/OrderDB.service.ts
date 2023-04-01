@@ -16,7 +16,7 @@ type TOrdersResponse = {
   shipCity: string;
 };
 
-export type TGetOrdersDB = TCalcPage& {
+export type TGetOrdersDB = TCalcPage & {
   orders: TOrdersResponse[];
 };
 
@@ -51,11 +51,14 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
       .offset(offset);
 
     const maxDBElements = this.getMaxElementsCount(limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(queryOrdersPromise);
 
-    const [length, queryOrders] = await Promise.all([maxDBElements, queryOrdersPromise]);
-    const { sql: sqlString } = queryOrdersPromise.toSQL();
-    await this.logLastSqlQuery(sqlString);
+    const [totalElementsAndPages, queryOrders] = await Promise.all([
+      maxDBElements,
+      queryOrdersPromise,
+      definitionQueryStatement,
+    ]);
 
-    return { ...length, orders: queryOrders };
+    return { ...totalElementsAndPages, orders: queryOrders };
   };
 }

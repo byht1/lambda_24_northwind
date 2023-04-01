@@ -25,11 +25,14 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
       .limit(limit)
       .offset(offset);
     const maxDBElements = this.getMaxElementsCount(limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(queryCustomersPromise);
 
-    const [length, queryCustomers] = await Promise.all([maxDBElements, queryCustomersPromise]);
-    const { sql: sqlString } = queryCustomersPromise.toSQL();
-    await this.logLastSqlQuery(sqlString);
+    const [totalElementsAndPages, queryCustomers] = await Promise.all([
+      maxDBElements,
+      queryCustomersPromise,
+      definitionQueryStatement,
+    ]);
 
-    return { ...length, customers: queryCustomers };
+    return { ...totalElementsAndPages, customers: queryCustomers };
   };
 }

@@ -25,11 +25,14 @@ export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
       .offset(offset);
 
     const maxDBElements = this.getMaxElementsCount(limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(queryEmployeesPromise);
 
-    const [length, queryEmployees] = await Promise.all([maxDBElements, queryEmployeesPromise]);
-    const { sql: sqlString } = queryEmployeesPromise.toSQL();
-    await this.logLastSqlQuery(sqlString);
+    const [totalElementsAndPages, queryEmployees] = await Promise.all([
+      maxDBElements,
+      queryEmployeesPromise,
+      definitionQueryStatement,
+    ]);
 
-    return { ...length, employees: queryEmployees };
+    return { ...totalElementsAndPages, employees: queryEmployees };
   };
 }
