@@ -1,28 +1,35 @@
 import { employees, TableEmployees, TEmployees } from 'db/schema';
-import { TableDB, TParams } from './tableDB.service';
+import { TableDB, TCalcPage, TParams } from './tableDB.service';
 
-export type TGetEmployeesDB = Pick<
+export type TGetEmployees = Pick<
   TEmployees,
   'id' | 'lastName' | 'firstName' | 'title' | 'city' | 'homePhone' | 'country'
 >;
+
+export type TGetEmployeesDB = TCalcPage & {
+  employees: TGetEmployees[];
+};
 
 export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
   constructor() {
     super(employees);
   }
 
-  getEmployees = async (params: TParams): Promise<TGetEmployeesDB[]> => {
+  getEmployees = async (params: TParams): Promise<TGetEmployeesDB> => {
     const { id, lastName, firstName, title, city, homePhone, country } = this.table;
     const { limit, offset } = params;
-    const query = this.db
+    const queryEmployeesPromise = this.db
       .select({ id, lastName, firstName, title, city, homePhone, country })
       .from(this.table)
       .limit(limit)
       .offset(offset);
 
-    const { sql } = query.toSQL();
-    await this.logLastSqlQuery(sql);
+    const maxDBElements = this.getMaxElementsCount(limit);
 
-    return query;
+    const [length, queryEmployees] = await Promise.all([maxDBElements, queryEmployeesPromise]);
+    const { sql: sqlString } = queryEmployeesPromise.toSQL();
+    await this.logLastSqlQuery(sqlString);
+
+    return { ...length, employees: queryEmployees };
   };
 }

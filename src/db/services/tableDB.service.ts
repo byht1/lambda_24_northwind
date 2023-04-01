@@ -15,6 +15,7 @@ import {
   TableTerritories,
 } from 'db/schema';
 import { DatabaseLogger } from './DatabaseLogger';
+import { sql } from 'drizzle-orm';
 
 export type TParams = {
   offset: number;
@@ -36,6 +37,11 @@ type TTable<T> = T extends
   ? T
   : never;
 
+export type TCalcPage = {
+  length: number;
+  maxPage: number;
+};
+
 export class TableDB<T, D> extends DatabaseLogger {
   public columnsName: Array<keyof typeof this.table>;
 
@@ -43,4 +49,14 @@ export class TableDB<T, D> extends DatabaseLogger {
     super();
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
+
+  getMaxElementsCount = async (limit: number): Promise<TCalcPage> => {
+    const maxDBElements = await this.db
+      .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
+      .from(this.table);
+    const length = maxDBElements[0].count;
+    const maxPage = length / limit;
+
+    return { length, maxPage };
+  };
 }

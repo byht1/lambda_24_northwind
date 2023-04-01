@@ -1,16 +1,16 @@
 import { TQuery } from 'modules/type';
 import { TRouterFn } from 'type';
 import { ProductsService } from './products.service';
-import { TGetProducts } from 'db/services/ProductDB.service';
+import { TGetProductsDB } from 'db/services/ProductDB.service';
 
 interface IProductsController {
-  getProducts: TRouterFn<TGetProducts[], TQuery>;
+  getProducts: TRouterFn<TGetProductsDB, TQuery>;
 }
 
 export class ProductsController implements IProductsController {
   constructor(private productsService: ProductsService = new ProductsService()) {}
 
-  getProducts: TRouterFn<TGetProducts[], TQuery> = async (req, res) => {
+  getProducts: TRouterFn<TGetProductsDB, TQuery> = async (req, res) => {
     const query = req.query;
     const products = await this.productsService.getProducts(query);
 

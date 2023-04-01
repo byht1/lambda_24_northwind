@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm/expressions';
 
 import { orderDetails, orders, TableOrders, TOrders } from 'db/schema';
-import { TableDB, TParams } from './tableDB.service';
+import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { sql } from 'drizzle-orm';
 
 type TOrdersResponse = {
@@ -16,8 +16,7 @@ type TOrdersResponse = {
   shipCity: string;
 };
 
-export type TGetOrdersDB = {
-  length: number;
+export type TGetOrdersDB = TCalcPage& {
   orders: TOrdersResponse[];
 };
 
@@ -51,14 +50,12 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
       .limit(limit)
       .offset(offset);
 
-    const maxLength = this.db
-      .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
-      .from(this.table);
+    const maxDBElements = this.getMaxElementsCount(limit);
 
-    const [length, queryOrders] = await Promise.all([maxLength, queryOrdersPromise]);
+    const [length, queryOrders] = await Promise.all([maxDBElements, queryOrdersPromise]);
     const { sql: sqlString } = queryOrdersPromise.toSQL();
     await this.logLastSqlQuery(sqlString);
 
-    return { length: length[0].count, orders: queryOrders };
+    return { ...length, orders: queryOrders };
   };
 }

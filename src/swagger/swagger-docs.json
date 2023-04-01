@@ -42,10 +42,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Product"
-                  }
+                  "$ref": "#/components/schemas/Product"
                 }
               }
             }
@@ -74,10 +71,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Supplies"
-                  }
+                  "$ref": "#/components/schemas/Supplies"
                 }
               }
             }
@@ -135,10 +129,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Employees"
-                  }
+                  "$ref": "#/components/schemas/Employees"
                 }
               }
             }
@@ -167,10 +158,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Customers"
-                  }
+                  "$ref": "#/components/schemas/Customers"
                 }
               }
             }
@@ -222,58 +210,90 @@
       "Product": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
-          },
-          "productName": {
-            "type": "string",
-            "example": "Chef Anton's Gumbo Mix"
-          },
-          "quantityPerUnit": {
-            "type": "string",
-            "example": "36 boxes"
-          },
-          "unitPrice": {
-            "type": "string",
-            "example": "21.35"
-          },
-          "unitsInStock": {
+          "length": {
             "type": "integer",
-            "example": 0
+            "example": 830
           },
-          "unitsOnOrder": {
+          "maxPage": {
             "type": "integer",
-            "example": 0
+            "example": 5
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+                },
+                "productName": {
+                  "type": "string",
+                  "example": "Chef Anton's Gumbo Mix"
+                },
+                "quantityPerUnit": {
+                  "type": "string",
+                  "example": "36 boxes"
+                },
+                "unitPrice": {
+                  "type": "string",
+                  "example": "21.35"
+                },
+                "unitsInStock": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "unitsOnOrder": {
+                  "type": "integer",
+                  "example": 0
+                }
+              }
+            }
           }
         }
       },
       "Supplies": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+          "length": {
+            "type": "integer",
+            "example": 830
           },
-          "companyName": {
-            "type": "string",
-            "example": "Cooperativa de Quesos 'Las Cabras'"
+          "maxPage": {
+            "type": "integer",
+            "example": 5
           },
-          "contactName": {
-            "type": "string",
-            "example": "Export Administrator"
-          },
-          "contactTitle": {
-            "type": "string",
-            "example": "Export Administrator"
-          },
-          "city": {
-            "type": "string",
-            "example": "Oviedo"
-          },
-          "country": {
-            "type": "string",
-            "example": "Spain"
+          "supplies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+                },
+                "companyName": {
+                  "type": "string",
+                  "example": "Cooperativa de Quesos 'Las Cabras'"
+                },
+                "contactName": {
+                  "type": "string",
+                  "example": "Export Administrator"
+                },
+                "contactTitle": {
+                  "type": "string",
+                  "example": "Export Administrator"
+                },
+                "city": {
+                  "type": "string",
+                  "example": "Oviedo"
+                },
+                "country": {
+                  "type": "string",
+                  "example": "Spain"
+                }
+              }
+            }
           }
         }
       },
@@ -283,6 +303,10 @@
           "length": {
             "type": "integer",
             "example": 830
+          },
+          "maxPage": {
+            "type": "integer",
+            "example": 5
           },
           "orders": {
             "type": "array",
@@ -333,54 +357,86 @@
       "Employees": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+          "length": {
+            "type": "integer",
+            "example": 830
           },
-          "name": {
-            "type": "string",
-            "example": "Nancy Davolio"
+          "maxPage": {
+            "type": "integer",
+            "example": 5
           },
-          "title": {
-            "type": "string",
-            "example": "Sales Representative"
-          },
-          "city": {
-            "type": "string",
-            "example": "Seattle"
-          },
-          "homePhone": {
-            "type": "string",
-            "example": "(206) 555-9857"
+          "employees": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Nancy Davolio"
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Sales Representative"
+                },
+                "city": {
+                  "type": "string",
+                  "example": "Seattle"
+                },
+                "homePhone": {
+                  "type": "string",
+                  "example": "(206) 555-9857"
+                }
+              }
+            }
           }
         }
       },
       "Customers": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+          "length": {
+            "type": "integer",
+            "example": 830
           },
-          "companyName": {
-            "type": "string",
-            "example": "Alfreds Futterkiste"
+          "maxPage": {
+            "type": "integer",
+            "example": 5
           },
-          "contactName": {
-            "type": "string",
-            "example": "Maria Anders"
-          },
-          "contactTitle": {
-            "type": "string",
-            "example": "Sales Representative"
-          },
-          "city": {
-            "type": "string",
-            "example": "Berlin"
-          },
-          "country": {
-            "type": "string",
-            "example": "USA"
+          "customers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+                },
+                "companyName": {
+                  "type": "string",
+                  "example": "Alfreds Futterkiste"
+                },
+                "contactName": {
+                  "type": "string",
+                  "example": "Maria Anders"
+                },
+                "contactTitle": {
+                  "type": "string",
+                  "example": "Sales Representative"
+                },
+                "city": {
+                  "type": "string",
+                  "example": "Berlin"
+                },
+                "country": {
+                  "type": "string",
+                  "example": "USA"
+                }
+              }
+            }
           }
         }
       }

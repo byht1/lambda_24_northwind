@@ -1,28 +1,35 @@
 import { customers, TableCustomers, TCustomers } from 'db/schema';
-import { TableDB, TParams } from './tableDB.service';
+import { TableDB, TCalcPage, TParams } from './tableDB.service';
+import { sql } from 'drizzle-orm';
 
-export type TGetCustomersDB = Pick<
+export type TCustomersDB = Pick<
   TCustomers,
   'id' | 'companyName' | 'contactName' | 'contactTitle' | 'city' | 'country'
 >;
+
+export type TGetCustomersDB = TCalcPage & {
+  customers: TCustomersDB[];
+};
 
 export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
   constructor() {
     super(customers);
   }
 
-  getCustomers = async (params: TParams) => {
+  getCustomers = async (params: TParams): Promise<TGetCustomersDB> => {
     const { id, companyName, contactName, contactTitle, city, country } = this.table;
     const { limit, offset } = params;
-    const query = this.db
+    const queryCustomersPromise = this.db
       .select({ id, companyName, contactName, contactTitle, city, country })
       .from(this.table)
       .limit(limit)
       .offset(offset);
+    const maxDBElements = this.getMaxElementsCount(limit);
 
-    const { sql } = query.toSQL();
-    await this.logLastSqlQuery(sql);
+    const [length, queryCustomers] = await Promise.all([maxDBElements, queryCustomersPromise]);
+    const { sql: sqlString } = queryCustomersPromise.toSQL();
+    await this.logLastSqlQuery(sqlString);
 
-    return query;
+    return { ...length, customers: queryCustomers };
   };
 }
