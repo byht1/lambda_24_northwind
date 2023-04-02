@@ -1,7 +1,7 @@
 import express from 'express';
 import { ctrlWrapper } from 'helpers';
 import { validate } from 'middleware';
-import { ordersQueryParamsDto, paramsIdDto } from 'modules/dto';
+import { ordersQueryParamsDto, paramsIdIsNumberDto } from 'modules/dto';
 import { OrdersController } from './orders.controller';
 
 const router = express.Router();
@@ -11,7 +11,7 @@ const { getOrders, getOrderId } = new OrdersController();
 router.get(`/${breakpointName}`, validate(ordersQueryParamsDto), ctrlWrapper(getOrders));
 router.get(
   `/${breakpointName}/:searchId`,
-  validate(paramsIdDto, 'params'),
+  validate(paramsIdIsNumberDto, 'params'),
   ctrlWrapper(getOrderId)
 );
 

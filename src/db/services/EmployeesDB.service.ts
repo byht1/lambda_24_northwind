@@ -25,7 +25,8 @@ export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
       .select({ id, lastName, firstName, title, city, homePhone, country })
       .from(this.table)
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .orderBy(firstName, lastName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryEmployeesPromise);

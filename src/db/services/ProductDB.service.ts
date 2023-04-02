@@ -8,10 +8,16 @@ export type TGetProducts = Pick<
   TProducts,
   'id' | 'productName' | 'quantityPerUnit' | 'unitPrice' | 'unitsInStock' | 'unitsOnOrder'
 >;
+type TGetProductId = Omit<TProducts, 'categoryId'>;
 
 export type TGetProductsDB = TCalcPage & {
   sqlLog: CalculateExecutionTime[];
   products: TGetProducts[];
+};
+
+export type TGetProductByIdResponseDB = {
+  product: TGetProductId;
+  sqlLog: CalculateExecutionTime[];
 };
 
 export class ProductDB extends TableDB<TProducts, TableProducts> {
@@ -36,7 +42,8 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
       })
       .from(this.table)
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .orderBy(productName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryProductsPromise);
@@ -56,7 +63,7 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
     return { sqlLog, ...elementAndPage, products: queryPromise };
   };
 
-  getProductById = async (searchId: number): Promise<any> => {
+  getProductById = async (searchId: number): Promise<TGetProductByIdResponseDB> => {
     const startTime = Date.now();
     const { productId, supplierId, categoryId, _, ...column } = this.table;
     const queryProductPromise = this.db

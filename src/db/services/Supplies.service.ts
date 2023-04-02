@@ -45,7 +45,8 @@ export class SuppliesDB extends TableDB<TSupplies, TableSupplies> {
       .select({ id, companyName, contactTitle, city, country, contactName, supplierId })
       .from(this.table)
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .orderBy(companyName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(querySuppliesPromise);

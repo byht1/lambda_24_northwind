@@ -1,8 +1,8 @@
-import { eq, inArray } from 'drizzle-orm/expressions';
+import { eq } from 'drizzle-orm/expressions';
+import { sql } from 'drizzle-orm';
 
 import { customers, orderDetails, orders, shippers, TableOrders, TOrders } from 'db/schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
-import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime } from 'helpers';
 
 type TOrdersResponse = {

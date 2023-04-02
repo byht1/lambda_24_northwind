@@ -255,6 +255,34 @@
           }
         }
       }
+    },
+    "/api/customers/{customerId}": {
+      "get": {
+        "tags": ["Customers"],
+        "summary": "Get customer by id",
+        "description": "Get customer by id for detailed information",
+        "responses": {
+          "200": {
+            "description": "Full information about the customer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerId"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          },
+          "404": {
+            "description": "No records found in the database matching your query."
+          },
+          "400": {
+            "description": "Invalid data"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -770,6 +798,10 @@
                   "type": "string",
                   "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
                 },
+                "customerId": {
+                  "type": "string",
+                  "example": "ALFKI"
+                },
                 "companyName": {
                   "type": "string",
                   "example": "Alfreds Futterkiste"
@@ -790,6 +822,67 @@
                   "type": "string",
                   "example": "USA"
                 }
+              }
+            }
+          }
+        }
+      },
+      "CustomerId": {
+        "type": "object",
+        "properties": {
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
+          "customer": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+              },
+              "customerId": {
+                "type": "string",
+                "example": "ALFKI"
+              },
+              "companyName": {
+                "type": "string",
+                "example": "Alfreds Futterkiste"
+              },
+              "contactName": {
+                "type": "string",
+                "example": "Maria Anders"
+              },
+              "contactTitle": {
+                "type": "string",
+                "example": "Sales Representative"
+              },
+              "address": {
+                "type": "string",
+                "example": "Obere Str. 57"
+              },
+              "city": {
+                "type": "string",
+                "example": "Berlin"
+              },
+              "region": {
+                "type": "string",
+                "example": "Western Europe"
+              },
+              "postalCode": {
+                "type": "string",
+                "example": "12209"
+              },
+              "country": {
+                "type": "string",
+                "example": "Germany"
+              },
+              "phone": {
+                "type": "string",
+                "example": "030-0074321"
+              },
+              "fax": {
+                "type": "string",
+                "example": "030-0074321"
               }
             }
           }

@@ -2,7 +2,7 @@ import { OrderDB, TGetOrdersDB, TOrderId } from 'db/services/OrderDB.service';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
 import { OrderDetailsDB, TOrderDerailsById } from 'db/services/OrderDetailsDB';
-import { CalculateExecutionTime, createError } from 'helpers';
+import { CalculateExecutionTime, createError, notFoundMessage } from 'helpers';
 
 export type TOrderById = {
   sqlLog: CalculateExecutionTime[];
@@ -35,7 +35,7 @@ export class OrdersService implements IOrdersService {
     const { order: orderResponse, sqlLog: orderSql } = order;
     const { orderDetails: orderDetailsResponse, sqlLog: orderDetailsSql } = orderDetails;
     if (!orderResponse) {
-      throw createError(404, 'No records found in the database matching your query.');
+      throw createError(404, notFoundMessage);
     }
 
     const sqlLog = [orderSql, orderDetailsSql];

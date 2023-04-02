@@ -1,10 +1,11 @@
-import { TQuery } from 'modules/type';
+import { TParamsId, TQuery } from 'modules/type';
 import { TRouterFn } from 'type';
 import { CustomersService } from './customers.service';
-import { TGetCustomersDB } from 'db/services/CustomersDB.service';
+import { TGetCustomerIdResponseDB, TGetCustomersDB } from 'db/services/CustomersDB.service';
 
 interface ICustomersController {
   getCustomers: TRouterFn<TGetCustomersDB, TQuery>;
+  getCustomerId: TRouterFn<TGetCustomerIdResponseDB, void, TParamsId>;
 }
 
 export class CustomersController implements ICustomersController {
@@ -15,5 +16,12 @@ export class CustomersController implements ICustomersController {
     const customers = await this.customersService.getCustomers(query);
 
     return res.json(customers);
+  };
+
+  getCustomerId: TRouterFn<TGetCustomerIdResponseDB, void, TParamsId> = async (req, res) => {
+    const { searchId } = req.params;
+    const customer = await this.customersService.getCustomerId(searchId);
+
+    return res.json(customer);
   };
 }
