@@ -1,7 +1,8 @@
 import { CalculateExecutionTime } from 'helpers';
 import { products, TableProducts, TProducts } from '../schema/products.schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
-import { sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm/expressions';
+import { supplies } from 'db/schema';
 
 export type TGetProducts = Pick<
   TProducts,
@@ -53,5 +54,31 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
     ];
 
     return { sqlLog, ...elementAndPage, products: queryPromise };
+  };
+
+  getProductById = async (searchId: number): Promise<any> => {
+    const startTime = Date.now();
+    const { productId, supplierId, categoryId, _, ...column } = this.table;
+    const queryProductPromise = this.db
+      .select({
+        ...column,
+        productId,
+        supplier: supplies.companyName,
+        supplierId,
+      })
+      .from(this.table)
+      .where(eq(productId, searchId))
+      .leftJoin(supplies, eq(supplierId, supplies.supplierId));
+    const definitionQueryStatement = this.getQueryStringAndLog(queryProductPromise);
+
+    const [querySupplies, sqlLogString] = await Promise.all([
+      queryProductPromise,
+      definitionQueryStatement,
+    ]);
+
+    return {
+      product: querySupplies[0],
+      sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)],
+    };
   };
 }

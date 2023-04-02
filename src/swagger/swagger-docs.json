@@ -56,6 +56,34 @@
         }
       }
     },
+    "/api/products/{productsId}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get product by id",
+        "description": "Get product by id for detailed information",
+        "responses": {
+          "200": {
+            "description": "Full information about the product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductId"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          },
+          "404": {
+            "description": "No records found in the database matching your query."
+          },
+          "400": {
+            "description": "Invalid data"
+          }
+        }
+      }
+    },
     "/api/supplies": {
       "get": {
         "tags": ["Supplies"],
@@ -335,6 +363,59 @@
                   "type": "integer",
                   "example": 1
                 }
+              }
+            }
+          }
+        }
+      },
+      "ProductId": {
+        "type": "object",
+        "properties": {
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
+          "product": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+              },
+              "productName": {
+                "type": "string",
+                "example": "Chai"
+              },
+              "quantityPerUnit": {
+                "type": "string",
+                "example": "10 boxes x 20 bags"
+              },
+              "unitPrice": {
+                "type": "string",
+                "example": "18"
+              },
+              "unitsInStock": {
+                "type": "integer",
+                "example": 39
+              },
+              "unitsOnOrder": {
+                "type": "integer",
+                "example": 0
+              },
+              "reorderLevel": {
+                "type": "integer",
+                "example": 10
+              },
+              "discontinued": {
+                "type": "integer",
+                "example": 0
+              },
+              "productId": {
+                "type": "integer",
+                "example": 1
+              },
+              "supplier": {
+                "type": "string",
+                "example": "Exotic Liquids"
               }
             }
           }
