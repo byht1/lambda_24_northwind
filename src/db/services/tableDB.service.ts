@@ -14,6 +14,7 @@ import {
 } from 'db/schema';
 import { DatabaseLogger } from './DatabaseLogger';
 import { sql } from 'drizzle-orm';
+import { CalculateExecutionTime } from 'helpers';
 
 export type TParams = {
   offset: number;
@@ -40,6 +41,10 @@ export type TCalcPage = {
   maxPage: number;
 };
 
+export type TMaxElementsCountResponse = TCalcPage & {
+  sqlLog: CalculateExecutionTime;
+};
+
 export class TableDB<T, D> extends DatabaseLogger {
   public columnsName: Array<keyof typeof this.table>;
 
@@ -48,13 +53,24 @@ export class TableDB<T, D> extends DatabaseLogger {
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
 
-  getMaxElementsCount = async (limit: number): Promise<TCalcPage> => {
-    const maxDBElements = await this.db
+  getMaxElementsCount = async (limit: number): Promise<TMaxElementsCountResponse> => {
+    const startTime = Date.now();
+    const maxDBElementsPromise = this.db
       .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
       .from(this.table);
+
+    const definitionQueryStatement = this.getQueryStringAndLog(maxDBElementsPromise);
+    const [maxDBElements, sqlLogString] = await Promise.all([
+      maxDBElementsPromise,
+      definitionQueryStatement,
+    ]);
     const totalElementsFromDB = maxDBElements[0].count;
     const maxPage = Math.ceil(totalElementsFromDB / limit);
 
-    return { totalElementsFromDB, maxPage };
+    return {
+      totalElementsFromDB,
+      maxPage,
+      sqlLog: new CalculateExecutionTime(startTime, sqlLogString),
+    };
   };
 }

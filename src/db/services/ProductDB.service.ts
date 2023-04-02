@@ -1,5 +1,7 @@
+import { CalculateExecutionTime } from 'helpers';
 import { products, TableProducts, TProducts } from '../schema/products.schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
+import { sql } from 'drizzle-orm';
 
 export type TGetProducts = Pick<
   TProducts,
@@ -7,6 +9,7 @@ export type TGetProducts = Pick<
 >;
 
 export type TGetProductsDB = TCalcPage & {
+  sqlLog: CalculateExecutionTime[];
   products: TGetProducts[];
 };
 
@@ -16,10 +19,20 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
   }
 
   getProducts = async (params: TParams): Promise<TGetProductsDB> => {
-    const { id, productName, quantityPerUnit, unitPrice, unitsInStock, unitsOnOrder } = this.table;
+    const startTime = Date.now();
+    const { id, productName, quantityPerUnit, unitPrice, unitsInStock, unitsOnOrder, productId } =
+      this.table;
     const { limit, offset } = params;
     const queryProductsPromise = this.db
-      .select({ id, productName, quantityPerUnit, unitPrice, unitsInStock, unitsOnOrder })
+      .select({
+        id,
+        productName,
+        quantityPerUnit,
+        unitPrice,
+        unitsInStock,
+        unitsOnOrder,
+        productId,
+      })
       .from(this.table)
       .limit(limit)
       .offset(offset);
@@ -27,12 +40,18 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryProductsPromise);
 
-    const [totalElementsAndPages, queryPromise] = await Promise.all([
+    const [totalElementsAndPages, queryPromise, sqlLogString] = await Promise.all([
       maxDBElements,
       queryProductsPromise,
       definitionQueryStatement,
     ]);
 
-    return { ...totalElementsAndPages, products: queryPromise };
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
+
+    return { sqlLog, ...elementAndPage, products: queryPromise };
   };
 }

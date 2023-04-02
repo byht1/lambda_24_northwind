@@ -1,14 +1,17 @@
 import { z } from 'zod';
 
-const isNumber = {
-  reg: /^\d+$/,
-  message: 'Must be a string containing only numbers',
-};
+import { numberStringValidation } from 'helpers';
 
 const queryParamsDtoGenerator = () => {
   return z.object({
-    page: z.string().regex(isNumber.reg, { message: isNumber.message }).optional(),
-    limit: z.string().regex(isNumber.reg, { message: isNumber.message }).optional(),
+    page: z
+      .string()
+      .regex(numberStringValidation.reg, { message: numberStringValidation.message })
+      .optional(),
+    limit: z
+      .string()
+      .regex(numberStringValidation.reg, { message: numberStringValidation.message })
+      .optional(),
   });
 };
 

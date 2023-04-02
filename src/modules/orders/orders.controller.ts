@@ -1,11 +1,11 @@
-import { TQuery } from 'modules/type';
+import { TParamsId, TQuery } from 'modules/type';
 import { TRouterFn } from 'type';
-import { OrdersService } from './orders.service';
+import { OrdersService, TOrderById } from './orders.service';
 import { TGetOrdersDB } from 'db/services/OrderDB.service';
 
 interface IOrdersController {
   getOrders: TRouterFn<TGetOrdersDB, TQuery>;
-  getOrderId: TRouterFn<any, void, { searchId: string }>;
+  getOrderId: TRouterFn<TOrderById, void, TParamsId>;
 }
 
 export class OrdersController implements IOrdersController {
@@ -18,7 +18,7 @@ export class OrdersController implements IOrdersController {
     return res.json(orders);
   };
 
-  getOrderId: TRouterFn<any, void, { searchId: string }> = async (req, res) => {
+  getOrderId: TRouterFn<TOrderById, void, TParamsId> = async (req, res) => {
     const { searchId } = req.params;
     const order = await this.ordersService.getOrderId(+searchId);
 

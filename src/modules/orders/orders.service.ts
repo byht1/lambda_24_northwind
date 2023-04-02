@@ -1,16 +1,18 @@
-import e from 'cors';
-import { TOrders, TSupplies } from 'db/schema';
-import { OrderDB, TGetOrdersDB } from 'db/services/OrderDB.service';
+import { OrderDB, TGetOrdersDB, TOrderId } from 'db/services/OrderDB.service';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
-import { roundedNumber } from '../../helpers/roundedNumber';
-import { OrderDetailsDB } from 'db/services/OrderDetailsDB';
-import { DrizzleTypeError } from 'drizzle-orm/utils';
-import { createError } from 'helpers';
+import { OrderDetailsDB, TOrderDerailsById } from 'db/services/OrderDetailsDB';
+import { CalculateExecutionTime } from 'helpers';
+
+export type TOrderById = {
+  sqlLog: CalculateExecutionTime[];
+  order: TOrderId;
+  products: TOrderDerailsById[];
+};
 
 interface IOrdersService {
   getOrders: (...args: [TQuery]) => Promise<TGetOrdersDB>;
-  getOrderId: (...args: [number]) => Promise<any>;
+  getOrderId: (...args: [number]) => Promise<TOrderById>;
 }
 
 export class OrdersService implements IOrdersService {
@@ -26,11 +28,15 @@ export class OrdersService implements IOrdersService {
     return orders;
   }
 
-  async getOrderId(searchId: number): Promise<any> {
+  async getOrderId(searchId: number): Promise<TOrderById> {
     const orderPromise = this.orderDB.getOrderById(searchId);
     const orderDetailsPromise = this.orderDetailsDB.getById(searchId);
     const [order, orderDetails] = await Promise.all([orderPromise, orderDetailsPromise]);
+    const { order: orderResponse, sqlLog: orderSql } = order;
+    const { orderDetails: orderDetailsResponse, sqlLog: orderDetailsSql } = orderDetails;
 
-    return { order, products: orderDetails };
+    const sqlLog = [orderSql, orderDetailsSql];
+
+    return { sqlLog, order: orderResponse, products: orderDetailsResponse };
   }
 }

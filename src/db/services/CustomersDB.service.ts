@@ -1,6 +1,7 @@
 import { customers, TableCustomers, TCustomers } from 'db/schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { sql } from 'drizzle-orm';
+import { CalculateExecutionTime } from 'helpers';
 
 export type TCustomersDB = Pick<
   TCustomers,
@@ -8,6 +9,7 @@ export type TCustomersDB = Pick<
 >;
 
 export type TGetCustomersDB = TCalcPage & {
+  sqlLog: CalculateExecutionTime[];
   customers: TCustomersDB[];
 };
 
@@ -17,6 +19,7 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
   }
 
   getCustomers = async (params: TParams): Promise<TGetCustomersDB> => {
+    const startTime = Date.now();
     const { id, companyName, contactName, contactTitle, city, country } = this.table;
     const { limit, offset } = params;
     const queryCustomersPromise = this.db
@@ -27,12 +30,18 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryCustomersPromise);
 
-    const [totalElementsAndPages, queryCustomers] = await Promise.all([
+    const [totalElementsAndPages, queryCustomers, sqlLogString] = await Promise.all([
       maxDBElements,
       queryCustomersPromise,
       definitionQueryStatement,
     ]);
 
-    return { ...totalElementsAndPages, customers: queryCustomers };
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
+
+    return { sqlLog, ...elementAndPage, customers: queryCustomers };
   };
 }

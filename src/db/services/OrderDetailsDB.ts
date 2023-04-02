@@ -2,16 +2,33 @@ import { orderDetails, products, TableOrderDetails, TOrderDetails } from 'db/sch
 import { TableDB } from './tableDB.service';
 import { eq } from 'drizzle-orm/expressions';
 import { sql } from 'drizzle-orm';
+import { CalculateExecutionTime } from 'helpers';
+
+export type TOrderDerailsById = {
+  id: string;
+  totalPrice: number;
+  quantity: number;
+  unitPrice: string;
+  discount: string;
+  productName: string | null;
+  productId: number;
+};
+
+export type TOrderDerailsIdResponse = {
+  sqlLog: CalculateExecutionTime;
+  orderDetails: TOrderDerailsById[];
+};
 
 export class OrderDetailsDB extends TableDB<TOrderDetails, TableOrderDetails> {
   constructor() {
     super(orderDetails);
   }
 
-  getById = async (searchId: number) => {
+  getById = async (searchId: number): Promise<TOrderDerailsIdResponse> => {
+    const startTime = Date.now();
     const { productId, quantity, unitPrice, id, orderId, discount } = this.table;
 
-    const OrderDetailsPromise = this.db
+    const orderDetailsPromise = this.db
       .select({
         id,
         totalPrice: sql<number>`ROUND(SUM(${unitPrice} * ${quantity}),2)`.mapWith(it => +it),
@@ -26,6 +43,13 @@ export class OrderDetailsDB extends TableDB<TOrderDetails, TableOrderDetails> {
       .where(eq(orderId, searchId))
       .groupBy(id, products.productName);
 
-    return OrderDetailsPromise;
+    const definitionQueryStatement = this.getQueryStringAndLog(orderDetailsPromise);
+
+    const [orderDetails, sqlLogString] = await Promise.all([
+      orderDetailsPromise,
+      definitionQueryStatement,
+    ]);
+
+    return { orderDetails, sqlLog: new CalculateExecutionTime(startTime, sqlLogString) };
   };
 }

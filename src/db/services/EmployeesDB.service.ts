@@ -1,5 +1,6 @@
 import { employees, TableEmployees, TEmployees } from 'db/schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
+import { CalculateExecutionTime } from 'helpers';
 
 export type TGetEmployees = Pick<
   TEmployees,
@@ -7,6 +8,7 @@ export type TGetEmployees = Pick<
 >;
 
 export type TGetEmployeesDB = TCalcPage & {
+  sqlLog: CalculateExecutionTime[];
   employees: TGetEmployees[];
 };
 
@@ -16,6 +18,7 @@ export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
   }
 
   getEmployees = async (params: TParams): Promise<TGetEmployeesDB> => {
+    const startTime = Date.now();
     const { id, lastName, firstName, title, city, homePhone, country } = this.table;
     const { limit, offset } = params;
     const queryEmployeesPromise = this.db
@@ -27,12 +30,18 @@ export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryEmployeesPromise);
 
-    const [totalElementsAndPages, queryEmployees] = await Promise.all([
+    const [totalElementsAndPages, queryEmployees, sqlLogString] = await Promise.all([
       maxDBElements,
       queryEmployeesPromise,
       definitionQueryStatement,
     ]);
 
-    return { ...totalElementsAndPages, employees: queryEmployees };
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
+
+    return { sqlLog, ...elementAndPage, employees: queryEmployees };
   };
 }

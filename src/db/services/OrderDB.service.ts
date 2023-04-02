@@ -3,6 +3,7 @@ import { eq, inArray } from 'drizzle-orm/expressions';
 import { customers, orderDetails, orders, shippers, TableOrders, TOrders } from 'db/schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { sql } from 'drizzle-orm';
+import { CalculateExecutionTime } from 'helpers';
 
 type TOrdersResponse = {
   orderId: number;
@@ -17,7 +18,34 @@ type TOrdersResponse = {
 };
 
 export type TGetOrdersDB = TCalcPage & {
+  sqlLog: CalculateExecutionTime[];
   orders: TOrdersResponse[];
+};
+
+export type TOrderId = {
+  id: string;
+  orderId: number;
+  orderDate: string;
+  requiredDate: string;
+  shippedDate: string | null;
+  freight: string;
+  shipAddress: string;
+  shipCity: string;
+  shipRegion: string | null;
+  shipPostalCode: string | null;
+  shipCountry: string;
+  shipVia: string | null;
+  shipPhone: string | null;
+  shipName: string;
+  customerId: string | null;
+  totalPrice: number;
+  quantity: number;
+  products: number;
+};
+
+export type TOrderIdResponseDB = {
+  order: TOrderId;
+  sqlLog: CalculateExecutionTime;
 };
 
 export class OrderDB extends TableDB<TOrders, TableOrders> {
@@ -26,6 +54,7 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
   }
 
   getOrders = async (params: TParams): Promise<TGetOrdersDB> => {
+    const startTime = Date.now();
     const { id, orderId, shippedDate, shipName, shipCity, shipCountry } = this.table;
     const { limit, offset } = params;
     const queryOrdersPromise = this.db
@@ -53,16 +82,24 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryOrdersPromise);
 
-    const [totalElementsAndPages, queryOrders] = await Promise.all([
+    const [totalElementsAndPages, queryOrders, sqlLogString] = await Promise.all([
       maxDBElements,
       queryOrdersPromise,
       definitionQueryStatement,
     ]);
 
-    return { ...totalElementsAndPages, orders: queryOrders };
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
+
+    return { sqlLog, ...elementAndPage, orders: queryOrders };
   };
 
-  getOrderById = async (searchId: number) => {
+  getOrderById = async (searchId: number): Promise<TOrderIdResponseDB> => {
+    const startTime = Date.now();
     const { id, orderId, shipVia, _, employeeId, shipName, ...order } = this.table;
     const queryOrderPromise = this.db
       .select({
@@ -96,8 +133,14 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
 
     const definitionQueryStatement = this.getQueryStringAndLog(queryOrderPromise);
 
-    const [queryOrder] = await Promise.all([queryOrderPromise, definitionQueryStatement]);
+    const [queryOrder, sqlLogString] = await Promise.all([
+      queryOrderPromise,
+      definitionQueryStatement,
+    ]);
 
-    return queryOrder[0];
+    return {
+      order: queryOrder[0],
+      sqlLog: new CalculateExecutionTime(startTime, sqlLogString),
+    };
   };
 }

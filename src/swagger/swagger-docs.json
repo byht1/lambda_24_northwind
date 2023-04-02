@@ -85,6 +85,31 @@
         }
       }
     },
+    "/api/supplies/{supplierId}": {
+      "get": {
+        "tags": ["Supplies"],
+        "summary": "Get supplier by id",
+        "description": "Get supplier by id for detailed information",
+        "responses": {
+          "200": {
+            "description": "Full information about the supplier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierId"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          },
+          "400": {
+            "description": "Invalid data"
+          }
+        }
+      }
+    },
     "/api/orders": {
       "get": {
         "tags": ["Orders"],
@@ -121,7 +146,7 @@
         "description": "Get order by id for detailed information",
         "responses": {
           "200": {
-            "description": "A list of orders.",
+            "description": "Full information about the order",
             "content": {
               "application/json": {
                 "schema": {
@@ -132,6 +157,9 @@
           },
           "500": {
             "description": "Server error"
+          },
+          "400": {
+            "description": "Invalid data"
           }
         }
       }
@@ -229,16 +257,44 @@
         },
         "description": "Comma-separated list of fields to exclude from the response. Cannot be used with pick_select."
       },
+      "SqlLog": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "querySqlLog": {
+              "type": "string",
+              "example": "select count(*) from \"employees\""
+            },
+            "startTime": {
+              "type": "string",
+              "example": "2023-04-02T12:22:06.527Z"
+            },
+            "finishTime": {
+              "type": "string",
+              "example": "2023-04-02T12:22:06.527Z"
+            },
+            "executionTimeToSecond": {
+              "type": "integer",
+              "example": 0.575
+            }
+          }
+        }
+      },
+      "TotalElementsFromDB": {
+        "type": "integer",
+        "example": 830
+      },
+      "MaxPage": { "type": "integer", "example": 5 },
       "Product": {
         "type": "object",
         "properties": {
           "totalElementsFromDB": {
-            "type": "integer",
-            "example": 830
+            "$ref": "#/components/schemas/TotalElementsFromDB"
           },
-          "maxPage": {
-            "type": "integer",
-            "example": 5
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
           },
           "products": {
             "type": "array",
@@ -268,6 +324,10 @@
                 "unitsOnOrder": {
                   "type": "integer",
                   "example": 0
+                },
+                "productId": {
+                  "type": "integer",
+                  "example": 1
                 }
               }
             }
@@ -278,12 +338,11 @@
         "type": "object",
         "properties": {
           "totalElementsFromDB": {
-            "type": "integer",
-            "example": 830
+            "$ref": "#/components/schemas/TotalElementsFromDB"
           },
-          "maxPage": {
-            "type": "integer",
-            "example": 5
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
           },
           "supplies": {
             "type": "array",
@@ -313,7 +372,76 @@
                 "country": {
                   "type": "string",
                   "example": "Spain"
+                },
+                "supplierId": {
+                  "type": "integer",
+                  "example": 1
                 }
+              }
+            }
+          }
+        }
+      },
+      "SupplierId": {
+        "type": "object",
+        "properties": {
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
+          "supplier": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+              },
+              "supplierId": {
+                "type": "integer",
+                "example": 10248
+              },
+              "companyName": {
+                "type": "string",
+                "example": "Exotic Liquids"
+              },
+              "contactName": {
+                "type": "string",
+                "example": "Charlotte Cooper"
+              },
+              "contactTitle": {
+                "type": "string",
+                "example": "Purchasing Manager"
+              },
+              "address": {
+                "type": "string",
+                "example": "49 Gilbert St."
+              },
+              "city": {
+                "type": "string",
+                "example": "London"
+              },
+              "region": {
+                "type": "string",
+                "example": "Western Europe"
+              },
+              "postalCode": {
+                "type": "string",
+                "example": "EC1 4SD"
+              },
+              "country": {
+                "type": "string",
+                "example": "UK"
+              },
+              "phone": {
+                "type": "string",
+                "example": "(171) 555-2222"
+              },
+              "fax": {
+                "type": "string",
+                "example": "(171) 555-2222"
+              },
+              "homePage": {
+                "type": "string",
+                "example": "#CAJUN.HTM#"
               }
             }
           }
@@ -323,12 +451,11 @@
         "type": "object",
         "properties": {
           "totalElementsFromDB": {
-            "type": "integer",
-            "example": 830
+            "$ref": "#/components/schemas/TotalElementsFromDB"
           },
-          "maxPage": {
-            "type": "integer",
-            "example": 5
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
           },
           "orders": {
             "type": "array",
@@ -379,6 +506,9 @@
       "OrderId": {
         "type": "object",
         "properties": {
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
           "order": {
             "type": "object",
             "properties": {
@@ -498,12 +628,11 @@
         "type": "object",
         "properties": {
           "totalElementsFromDB": {
-            "type": "integer",
-            "example": 830
+            "$ref": "#/components/schemas/TotalElementsFromDB"
           },
-          "maxPage": {
-            "type": "integer",
-            "example": 5
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
           },
           "employees": {
             "type": "array",
@@ -539,12 +668,11 @@
         "type": "object",
         "properties": {
           "totalElementsFromDB": {
-            "type": "integer",
-            "example": 830
+            "$ref": "#/components/schemas/TotalElementsFromDB"
           },
-          "maxPage": {
-            "type": "integer",
-            "example": 5
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
           },
           "customers": {
             "type": "array",

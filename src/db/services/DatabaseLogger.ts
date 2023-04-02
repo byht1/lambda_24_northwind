@@ -16,6 +16,8 @@ export class DatabaseLogger {
   getQueryStringAndLog = async (request: PgSelect<any, any, any>) => {
     const { sql } = request.toSQL();
     await this.logLastSqlQuery(sql);
+
+    return sql;
   };
 
   private logLastSqlQuery = async (sqlQuery: string) => {
@@ -28,6 +30,7 @@ export class DatabaseLogger {
     recentSqlQueriesCorrecting.push(newSqlQuery);
 
     await writeFile(this.databaseLogsPath, recentSqlQueriesCorrecting.join('\n'));
+    return newSqlQuery;
   };
 
   private formatLogSqlQuery = (sqlQuery: string) => {
