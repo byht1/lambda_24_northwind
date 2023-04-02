@@ -104,6 +104,9 @@
           "500": {
             "description": "Server error"
           },
+          "404": {
+            "description": "No records found in the database matching your query."
+          },
           "400": {
             "description": "Invalid data"
           }
@@ -157,6 +160,9 @@
           },
           "500": {
             "description": "Server error"
+          },
+          "404": {
+            "description": "No records found in the database matching your query."
           },
           "400": {
             "description": "Invalid data"

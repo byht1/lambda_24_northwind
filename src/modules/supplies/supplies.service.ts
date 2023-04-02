@@ -1,5 +1,6 @@
 import { TSupplies } from 'db/schema';
 import { SuppliesDB, TGetProductsDB, TSupplierByIdResponse } from 'db/services/Supplies.service';
+import { createError } from 'helpers';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
 
@@ -17,6 +18,10 @@ export class SuppliesService implements ISuppliesService {
   };
 
   getSupplierById = async (searchId: number): Promise<TSupplierByIdResponse> => {
-    return await this.suppliesDB.getSupplierById(searchId);
+    const supplier = await this.suppliesDB.getSupplierById(searchId);
+    if (!supplier.supplier) {
+      throw createError(404, 'No records found in the database matching your query.');
+    }
+    return supplier;
   };
 }
