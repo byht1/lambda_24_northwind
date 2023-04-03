@@ -4,7 +4,7 @@ import { CalculateExecutionTime } from 'helpers';
 
 export type TGetEmployees = Pick<
   TEmployees,
-  'id' | 'lastName' | 'firstName' | 'title' | 'city' | 'homePhone' | 'country'
+  'id' | 'lastName' | 'firstName' | 'title' | 'city' | 'homePhone' | 'country' | 'employeeId'
 >;
 
 export type TGetEmployeesDB = TCalcPage & {
@@ -19,10 +19,10 @@ export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
 
   getEmployees = async (params: TParams): Promise<TGetEmployeesDB> => {
     const startTime = Date.now();
-    const { id, lastName, firstName, title, city, homePhone, country } = this.table;
+    const { id, lastName, firstName, title, city, homePhone, country, employeeId } = this.table;
     const { limit, offset } = params;
     const queryEmployeesPromise = this.db
-      .select({ id, lastName, firstName, title, city, homePhone, country })
+      .select({ id, lastName, firstName, title, city, homePhone, country, employeeId })
       .from(this.table)
       .limit(limit)
       .offset(offset)

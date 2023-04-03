@@ -1,4 +1,4 @@
-02.04.2023 22:30:15 - select "id", "customer_id", "company_name", "contact_name", "contact_title", "address", "city", "region", "postal_code", "country", "phone", "fax" from "customers" where "customers"."customer_id" = $1
-02.04.2023 22:30:43 - select "id", "customer_id", "company_name", "contact_name", "contact_title", "address", "city", "region", "postal_code", "country", "phone", "fax" from "customers" where "customers"."customer_id" = $1
 02.04.2023 22:49:52 - select "id", "last_name", "first_name", "title", "city", "home_phone", "country" from "employees" order by "employees"."first_name", "employees"."last_name" limit $1
 02.04.2023 22:50:34 - select "id", "last_name", "first_name", "title", "city", "home_phone", "country" from "employees" order by "employees"."first_name", "employees"."last_name" limit $1
+03.04.2023 10:18:35 - select "id", "last_name", "first_name", "title", "city", "home_phone", "country", "employee_id" from "employees" order by "employees"."first_name", "employees"."last_name" limit $1
+03.04.2023 10:21:04 - select "id", "last_name", "first_name", "title", "city", "home_phone", "country" from "employees" order by "employees"."first_name" limit $1

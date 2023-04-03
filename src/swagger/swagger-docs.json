@@ -758,6 +758,10 @@
                   "type": "string",
                   "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
                 },
+                "employeeId": {
+                  "type": "string",
+                  "example": "1"
+                },
                 "name": {
                   "type": "string",
                   "example": "Nancy Davolio"
