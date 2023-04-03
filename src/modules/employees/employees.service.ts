@@ -1,5 +1,5 @@
 import { TEmployees } from 'db/schema';
-import { EmployeesDB } from 'db/services/EmployeesDB.service';
+import { EmployeesDB, TEmployeeDBResponse } from 'db/services/EmployeesDB.service';
 import { TCalcPage } from 'db/services/tableDB.service';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
@@ -19,12 +19,13 @@ export type TGetEmployees = TCalcPage & {
 
 interface IEmployeesService {
   getEmployees: (...args: [TQuery]) => Promise<TGetEmployees>;
+  getEmployeeId: (...args: [number]) => Promise<TEmployeeDBResponse>;
 }
 
 export class EmployeesService implements IEmployeesService {
   constructor(private employeesDB: EmployeesDB = new EmployeesDB()) {}
 
-  async getEmployees(query: TQuery): Promise<TGetEmployees> {
+  getEmployees = async (query: TQuery): Promise<TGetEmployees> => {
     const params = formatQueryParams(query);
     const employees = await this.employeesDB.getEmployees(params);
     const updateDataEmployees = employees.employees.map(({ firstName, lastName, ...employee }) => ({
@@ -33,5 +34,11 @@ export class EmployeesService implements IEmployeesService {
     }));
 
     return { ...employees, employees: updateDataEmployees };
-  }
+  };
+
+  getEmployeeId = async (searchId: number): Promise<TEmployeeDBResponse> => {
+    const employee = await this.employeesDB.getEmployeeById(searchId);
+
+    return employee;
+  };
 }

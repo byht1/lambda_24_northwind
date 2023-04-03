@@ -227,6 +227,34 @@
         }
       }
     },
+    "/api/orders/{employeeId}": {
+      "get": {
+        "tags": ["Employees"],
+        "summary": "Get employee by id",
+        "description": "Get employee by id for detailed information",
+        "responses": {
+          "200": {
+            "description": "Full information about the employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeId"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          },
+          "404": {
+            "description": "No records found in the database matching your query."
+          },
+          "400": {
+            "description": "Invalid data"
+          }
+        }
+      }
+    },
     "/api/customers": {
       "get": {
         "tags": ["Customers"],
@@ -777,6 +805,92 @@
                 "homePhone": {
                   "type": "string",
                   "example": "(206) 555-9857"
+                }
+              }
+            }
+          }
+        }
+      },
+      "EmployeeId": {
+        "type": "object",
+        "properties": {
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
+          "employee": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+              },
+              "title": {
+                "type": "string",
+                "example": "Sales Representative"
+              },
+              "titleOfCourtesy": {
+                "type": "string",
+                "example": "Ms."
+              },
+              "birthDate": {
+                "type": "string",
+                "example": "1948-12-08"
+              },
+              "hireDate": {
+                "type": "string",
+                "example": "1948-12-08"
+              },
+              "address": {
+                "type": "string",
+                "example": "507 - 20th Ave. E.Apt. 2A"
+              },
+              "city": {
+                "type": "string",
+                "example": "Seattle"
+              },
+              "region": {
+                "type": "string",
+                "example": "North America"
+              },
+              "postalCode": {
+                "type": "string",
+                "example": "98122"
+              },
+              "country": {
+                "type": "string",
+                "example": "USA"
+              },
+              "homePhone": {
+                "type": "string",
+                "example": "(206) 555-9857"
+              },
+              "extension": {
+                "type": "integer",
+                "example": 5467
+              },
+              "notes": {
+                "type": "string",
+                "example": "text"
+              },
+              "name": {
+                "type": "string",
+                "example": "Nancy Davolio"
+              },
+              "employeeId": {
+                "type": "integer",
+                "example": 1
+              },
+              "reportsTo": {
+                "type": "object",
+                "properties": {
+                  "employeeId": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Nancy Davolio"
+                  }
                 }
               }
             }

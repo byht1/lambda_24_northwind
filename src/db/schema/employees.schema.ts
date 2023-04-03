@@ -1,9 +1,9 @@
 import { InferModel } from 'drizzle-orm';
-import { integer, pgTable, varchar, uuid } from 'drizzle-orm/pg-core';
+import { integer, pgTable, varchar, uuid, alias } from 'drizzle-orm/pg-core';
 
 export const employees = pgTable('employees', {
   id: uuid('id').defaultRandom().primaryKey(),
-  employeeId: varchar('employee_id').notNull(),
+  employeeId: integer('employee_id').notNull(),
   lastName: varchar('last_name').notNull(),
   firstName: varchar('first_name').notNull(),
   title: varchar('title'),
@@ -20,6 +20,8 @@ export const employees = pgTable('employees', {
   notes: varchar('notes'),
   reportsTo: integer('reports_to'),
 });
+
+export const employeesFiles = alias(employees, 'employees_files');
 
 export type TEmployees = InferModel<typeof employees>;
 export type NewTEmployees = InferModel<typeof employees, 'insert'>;
