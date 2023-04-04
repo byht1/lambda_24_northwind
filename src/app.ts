@@ -28,10 +28,6 @@ app.use('/api', ordersRouter);
 app.use('/api', employeesRouter);
 app.use('/api', customersRouter);
 app.use('/', swaggerRouter);
-// app.use('/', (req, res) => {
-//   const { host } = req.headers;
-//   res.redirect(`http://${host}/api/orders`);
-// });
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found' });

@@ -2,7 +2,7 @@ import { customers, TableCustomers, TCustomers } from 'db/schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime, getRegion } from 'helpers';
-import { eq } from 'drizzle-orm/expressions';
+import { eq, like } from 'drizzle-orm/expressions';
 
 export type TCustomersDB = Pick<
   TCustomers,
@@ -69,5 +69,46 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
     const [customer, sqlLogString] = await Promise.all([customerPromise, definitionQueryStatement]);
 
     return { customer: customer[0], sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)] };
+  };
+
+  find = async (params: TParams, searchValue: string, searchField?: string) => {
+    const startTime = Date.now();
+    const { companyName } = this.table;
+    const { limit, offset } = params;
+    const searchDataCustomerPromise = this.db
+      .select()
+      .from(this.table)
+      .where(like(companyName, `%${searchValue}%`))
+      .limit(limit)
+      .offset(offset);
+
+    // const searchDataCustomerPromiseSQ = await this.db
+    //   .select()
+    //   .from(this.table)
+    //   .where(like(companyName, `%${searchValue}%`))
+    //   .limit(limit)
+    //   .offset(offset)
+    //   .as('sq');
+
+    // const page = await this.db
+    //   .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
+    //   .from(searchDataCustomerPromiseSQ);
+
+    const maxDBElements = this.getMaxElementsCount(limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(searchDataCustomerPromise);
+
+    const [totalElementsAndPages, searchDataCustomer, sqlLogString] = await Promise.all([
+      maxDBElements,
+      searchDataCustomerPromise,
+      definitionQueryStatement,
+    ]);
+
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
+
+    return { sqlLog, ...elementAndPage, data: searchDataCustomer };
   };
 }

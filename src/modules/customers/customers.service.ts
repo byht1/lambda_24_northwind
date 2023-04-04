@@ -32,4 +32,9 @@ export class CustomersService implements ICustomersService {
 
     return customer;
   };
+
+  customerSearch = async (query: TQuery, searchValue: string) => {
+    const params = formatQueryParams(query);
+    return await this.customersDB.find(params, searchValue);
+  };
 }

@@ -24,4 +24,12 @@ export class CustomersController implements ICustomersController {
 
     return res.json(customer);
   };
+
+  search: TRouterFn<any, TQuery, { searchValue: string }> = async (req, res) => {
+    const { searchValue } = req.params;
+
+    const data = await this.customersService.customerSearch(req.query, searchValue);
+
+    return res.json(data);
+  };
 }

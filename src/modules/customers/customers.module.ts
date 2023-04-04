@@ -6,7 +6,7 @@ import { CustomersController } from './customers.controller';
 
 const router = express.Router();
 const breakpointName = 'customers';
-const { getCustomers, getCustomerId } = new CustomersController();
+const { getCustomers, getCustomerId, search } = new CustomersController();
 
 router.get(`/${breakpointName}`, validate(customersQueryParamsDto), ctrlWrapper(getCustomers));
 router.get(
@@ -14,5 +14,6 @@ router.get(
   validate(paramsIdIsLettersDto, 'params'),
   ctrlWrapper(getCustomerId)
 );
+router.get(`/${breakpointName}/search/:searchValue`, ctrlWrapper(search));
 
 export const customersRouter = router;
