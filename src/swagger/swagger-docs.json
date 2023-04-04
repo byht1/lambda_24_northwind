@@ -24,6 +24,9 @@
     },
     {
       "name": "Customers"
+    },
+    {
+      "name": "Search"
     }
   ],
   "paths": {
@@ -311,6 +314,38 @@
           }
         }
       }
+    },
+    "/api/search": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Get list of customers",
+        "description": "Retrieve a list of customers. You can filter the results by using query parameters.",
+        "parameters": [
+          { "$ref": "#/components/schemas/QueryPage" },
+          { "$ref": "#/components/schemas/QueryLimit" },
+          { "$ref": "#/components/schemas/QueryTableName" },
+          { "$ref": "#/components/schemas/QuerySearchValue" },
+          { "$ref": "#/components/schemas/QueryField" }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of customers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerOrProductData"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          },
+          "400": {
+            "description": "Invalid data"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -319,7 +354,8 @@
         "in": "query",
         "name": "page",
         "schema": {
-          "type": "integer"
+          "type": "integer",
+          "default": "1"
         },
         "description": "Page number to retrieve"
       },
@@ -327,26 +363,60 @@
         "in": "query",
         "name": "limit",
         "schema": {
-          "type": "integer"
+          "type": "integer",
+          "default": "20"
         },
         "description": "Maximum number of products per page"
       },
-      "QueryPickSelect": {
+      "QueryTableName": {
+        "name": "table",
         "in": "query",
-        "name": "pick_select",
+        "description": "The name of the table to search",
+        "required": true,
         "schema": {
-          "type": "string"
-        },
-        "description": "Comma-separated list of fields to include in the response. Cannot be used with omit_select."
+          "type": "string",
+          "enum": ["customers", "products"]
+        }
       },
-      "QueryOmitSelect": {
+      "QuerySearchValue": {
+        "name": "searchValue",
         "in": "query",
-        "name": "omit_select",
+        "description": "The search value for the search operation",
+        "required": true,
         "schema": {
-          "type": "string"
-        },
-        "description": "Comma-separated list of fields to exclude from the response. Cannot be used with pick_select."
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9()\\-'\",?!;:\\s]+$"
+        }
       },
+      "QueryField": {
+        "name": "field",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "companyName",
+            "contactName",
+            "contactTitle",
+            "phone",
+            "productName",
+            "quantityPerUnit"
+          ]
+        },
+        "description": "Field to search by",
+        "example": "companyName",
+        "examples": {
+          "customers": {
+            "summary": "Field to search by when table is 'customers'",
+            "value": "companyName"
+          },
+          "products": {
+            "summary": "Field to search by when table is 'products'",
+            "value": "productName"
+          }
+        }
+      },
+
       "SqlLog": {
         "type": "array",
         "items": {
@@ -1001,6 +1071,117 @@
               "fax": {
                 "type": "string",
                 "example": "030-0074321"
+              }
+            }
+          }
+        }
+      },
+
+      "CustomerOrProductData": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CustomerSearchData"
+          },
+          {
+            "$ref": "#/components/schemas/ProductSearchData"
+          }
+        ]
+      },
+      "CustomerSearchData": {
+        "type": "object",
+        "properties": {
+          "totalElementsFromDB": {
+            "$ref": "#/components/schemas/TotalElementsFromDB"
+          },
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
+          "tableName": {
+            "type": "string",
+            "example": "customers"
+          },
+          "searchColumnName": {
+            "type": "string",
+            "example": "companyName"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+                },
+                "customerId": {
+                  "type": "string",
+                  "example": "THECR"
+                },
+                "companyName": {
+                  "type": "string"
+                },
+                "contactName": {
+                  "type": "string"
+                },
+                "contactTitle": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProductSearchData": {
+        "type": "object",
+        "properties": {
+          "totalElementsFromDB": {
+            "$ref": "#/components/schemas/TotalElementsFromDB"
+          },
+          "maxPage": { "$ref": "#/components/schemas/MaxPage" },
+          "sqlLog": {
+            "$ref": "#/components/schemas/SqlLog"
+          },
+          "tableName": {
+            "type": "string",
+            "example": "products"
+          },
+          "searchColumnName": {
+            "type": "string",
+            "example": "productName"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
+                },
+                "categoryId": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "quantityPerUnit": {
+                  "type": "string",
+                  "example": "36 boxes"
+                },
+                "unitPrice": {
+                  "type": "string",
+                  "example": "21.35"
+                },
+                "unitsInStock": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "productName": {
+                  "type": "string",
+                  "example": "Gravad lax"
+                }
               }
             }
           }

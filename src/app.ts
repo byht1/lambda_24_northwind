@@ -6,6 +6,7 @@ import {
   employeesRouter,
   ordersRouter,
   productsRouter,
+  searchRouter,
   suppliesRouter,
 } from 'modules';
 import morgan from 'morgan';
@@ -27,6 +28,7 @@ app.use('/api', suppliesRouter);
 app.use('/api', ordersRouter);
 app.use('/api', employeesRouter);
 app.use('/api', customersRouter);
+app.use('/api', searchRouter);
 app.use('/', swaggerRouter);
 
 app.use((req, res) => {

@@ -3,6 +3,7 @@ import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime, getRegion } from 'helpers';
 import { eq, like } from 'drizzle-orm/expressions';
+import { TSearchCustomersResponse } from './customers/type';
 
 export type TCustomersDB = Pick<
   TCustomers,
@@ -71,30 +72,28 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
     return { customer: customer[0], sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)] };
   };
 
-  find = async (params: TParams, searchValue: string, searchField?: string) => {
+  find = async (
+    params: TParams,
+    searchValue: string,
+    searchField?: string
+  ): Promise<TSearchCustomersResponse> => {
     const startTime = Date.now();
-    const { companyName } = this.table;
+    const { companyName, contactName, contactTitle, phone, id, customerId } = this.table;
+    const searchColumnName = this.determineSearchField(searchField);
     const { limit, offset } = params;
-    const searchDataCustomerPromise = this.db
+    const sq = this.db
       .select()
       .from(this.table)
-      .where(like(companyName, `%${searchValue}%`))
+      .where(like(searchColumnName, `%${searchValue}%`))
+      .as('sq');
+
+    const searchDataCustomerPromise = this.db
+      .select({ companyName, contactName, contactTitle, phone, id, customerId })
+      .from(this.table)
+      .where(like(searchColumnName, `%${searchValue}%`))
       .limit(limit)
       .offset(offset);
-
-    // const searchDataCustomerPromiseSQ = await this.db
-    //   .select()
-    //   .from(this.table)
-    //   .where(like(companyName, `%${searchValue}%`))
-    //   .limit(limit)
-    //   .offset(offset)
-    //   .as('sq');
-
-    // const page = await this.db
-    //   .select({ count: sql<string>`count(*)`.mapWith(it => +it) })
-    //   .from(searchDataCustomerPromiseSQ);
-
-    const maxDBElements = this.getMaxElementsCount(limit);
+    const maxDBElements = this.sqGetMaxElementsCount(sq, limit);
     const definitionQueryStatement = this.getQueryStringAndLog(searchDataCustomerPromise);
 
     const [totalElementsAndPages, searchDataCustomer, sqlLogString] = await Promise.all([
@@ -109,6 +108,30 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
       sqlLogTotalElementsAndPages,
     ];
 
-    return { sqlLog, ...elementAndPage, data: searchDataCustomer };
+    return {
+      sqlLog,
+      tableName: 'customers',
+      searchColumnName,
+      ...elementAndPage,
+      data: searchDataCustomer,
+    };
+  };
+
+  private determineSearchField = (searchField?: string) => {
+    const { companyName, contactName, contactTitle, phone } = this.table;
+
+    switch (searchField) {
+      case 'contactName':
+        return contactName;
+
+      case 'contactTitle':
+        return contactTitle;
+
+      case 'phone':
+        return phone;
+
+      default:
+        return companyName;
+    }
   };
 }

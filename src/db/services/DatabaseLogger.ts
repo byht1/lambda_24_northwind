@@ -2,7 +2,6 @@ import { join as pathJoin } from 'path';
 import { writeFile, readFile } from 'fs/promises';
 import { getEnv } from 'helpers';
 import { PgSelect } from 'drizzle-orm/pg-core';
-import { SelectMode } from 'drizzle-orm/query-builders/select.types';
 
 export class DatabaseLogger {
   constructor(

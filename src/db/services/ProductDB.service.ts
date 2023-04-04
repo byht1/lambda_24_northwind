@@ -1,8 +1,9 @@
 import { CalculateExecutionTime } from 'helpers';
 import { products, TableProducts, TProducts } from '../schema/products.schema';
 import { TableDB, TCalcPage, TParams } from './tableDB.service';
-import { eq } from 'drizzle-orm/expressions';
+import { eq, like } from 'drizzle-orm/expressions';
 import { supplies } from 'db/schema';
+import { TSearchProductsResponse } from './products/type';
 
 export type TGetProducts = Pick<
   TProducts,
@@ -87,5 +88,62 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
       product: querySupplies[0],
       sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)],
     };
+  };
+
+  find = async (
+    params: TParams,
+    searchValue: string,
+    searchField?: string
+  ): Promise<TSearchProductsResponse> => {
+    const startTime = Date.now();
+    const { quantityPerUnit, unitPrice, unitsInStock, productName, id, categoryId } = this.table;
+    const searchColumnName = this.determineSearchField(searchField);
+    const { limit, offset } = params;
+    const sq = this.db
+      .select()
+      .from(this.table)
+      .where(like(searchColumnName, `%${searchValue}%`))
+      .as('sq');
+
+    const searchDataCustomerPromise = this.db
+      .select({ quantityPerUnit, unitPrice, unitsInStock, productName, id, categoryId })
+      .from(this.table)
+      .where(like(searchColumnName, `%${searchValue}%`))
+      .limit(limit)
+      .offset(offset);
+    const maxDBElements = this.sqGetMaxElementsCount(sq, limit);
+    const definitionQueryStatement = this.getQueryStringAndLog(searchDataCustomerPromise);
+
+    const [totalElementsAndPages, searchDataCustomer, sqlLogString] = await Promise.all([
+      maxDBElements,
+      searchDataCustomerPromise,
+      definitionQueryStatement,
+    ]);
+
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
+
+    return {
+      sqlLog,
+      tableName: 'products',
+      searchColumnName,
+      ...elementAndPage,
+      data: searchDataCustomer,
+    };
+  };
+
+  private determineSearchField = (searchField?: string) => {
+    const { productName, quantityPerUnit } = this.table;
+
+    switch (searchField) {
+      case 'quantityPerUnit':
+        return quantityPerUnit;
+
+      default:
+        return productName;
+    }
   };
 }
