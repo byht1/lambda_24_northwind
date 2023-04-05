@@ -1,5 +1,4 @@
-import { TParams } from '../tableDB/tableDB.service';
-import { TCalcPage, TDatabaseLogger } from './any';
+import { TCalcPage, TDatabaseLogger, TParams } from './any';
 
 export type TAllRepositoryResponse<F extends string, D> = TDatabaseLogger &
   TCalcPage & {

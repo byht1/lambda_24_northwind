@@ -14,6 +14,28 @@ export class TableDB<D> extends DatabaseLogger {
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
 
+  // allAwait = async <M extends Promise<TMaxElementsCountResponse>, T, S extends Promise<string>>(
+  //   maxDBElements: M,
+  //   query: T,
+  //   sql: S,
+  //   fieldName: string
+  // ) => {
+  //   const startTime = Date.now();
+  //   const [totalElementsAndPages, queryResponse, sqlLogString] = await Promise.all([
+  //     maxDBElements,
+  //     query,
+  //     sql,
+  //   ]);
+
+  //   const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+  //   const sqlLog = [
+  //     new CalculateExecutionTime(startTime, sqlLogString),
+  //     sqlLogTotalElementsAndPages,
+  //   ];
+
+  //   return { sqlLog, ...elementAndPage, [fieldName]: queryResponse };
+  // };
+
   sqGetMaxElementsCount = async <B = any>(
     sq: SubqueryWithSelection<B, 'sq'>,
     limit: number

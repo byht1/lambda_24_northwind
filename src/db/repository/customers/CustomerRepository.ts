@@ -32,6 +32,13 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryCustomersPromise);
 
+    // const test = await this.allAwait(
+    //   maxDBElements,
+    //   queryCustomersPromise,
+    //   definitionQueryStatement,
+    //   'customers'
+    // );
+
     const [totalElementsAndPages, queryCustomers, sqlLogString] = await Promise.all([
       maxDBElements,
       queryCustomersPromise,
