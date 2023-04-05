@@ -1,23 +1,24 @@
-import { SuppliesDB, TGetProductsDB, TSupplierByIdResponse } from 'db/services/Supplies.service';
+import { SuppliesRepository, TSuppliesAllRes, TSuppliesOneByIdRes } from 'db/repository';
 import { createError, notFoundMessage } from 'helpers';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
 
 interface ISuppliesService {
-  getSupplies: (...args: [TQuery]) => void;
+  getSupplies: (...args: [TQuery]) => Promise<TSuppliesAllRes>;
+  getSupplierById: (...args: [number]) => Promise<TSuppliesOneByIdRes>;
 }
 
 export class SuppliesService implements ISuppliesService {
-  constructor(private suppliesDB: SuppliesDB = new SuppliesDB()) {}
+  constructor(private suppliesDB: SuppliesRepository = new SuppliesRepository()) {}
 
-  getSupplies = async (query: TQuery): Promise<TGetProductsDB> => {
+  getSupplies = async (query: TQuery): Promise<TSuppliesAllRes> => {
     const params = formatQueryParams(query);
 
-    return this.suppliesDB.getSupplies(params);
+    return this.suppliesDB.getAll(params);
   };
 
-  getSupplierById = async (searchId: number): Promise<TSupplierByIdResponse> => {
-    const supplier = await this.suppliesDB.getSupplierById(searchId);
+  getSupplierById = async (searchId: number): Promise<TSuppliesOneByIdRes> => {
+    const supplier = await this.suppliesDB.getOneById(searchId);
     if (!supplier.supplier) {
       throw createError(404, notFoundMessage);
     }

@@ -1,31 +1,16 @@
-import { customers, TableCustomers, TCustomers } from 'db/schema';
-import { TableDB, TCalcPage, TParams } from './tableDB.service';
-import { sql } from 'drizzle-orm';
-import { CalculateExecutionTime, getRegion } from 'helpers';
 import { eq, like } from 'drizzle-orm/expressions';
-import { TSearchCustomersResponse } from './customers/type';
+import { CalculateExecutionTime } from 'helpers';
 
-export type TCustomersDB = Pick<
-  TCustomers,
-  'id' | 'companyName' | 'contactName' | 'contactTitle' | 'city' | 'country' | 'customerId'
->;
+import { TableCustomers, customers } from 'db/schema';
+import { TableDB } from '../tableDB/tableDB.service';
+import { CustomersAllFn, CustomersOneByIdFn, CustomersFindFn, ICustomerRepository } from './type';
 
-export type TGetCustomersDB = TCalcPage & {
-  sqlLog: CalculateExecutionTime[];
-  customers: TCustomersDB[];
-};
-
-export type TGetCustomerIdResponseDB = {
-  customer: TCustomers;
-  sqlLog: CalculateExecutionTime[];
-};
-
-export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
+export class CustomerRepository extends TableDB<TableCustomers> implements ICustomerRepository {
   constructor() {
     super(customers);
   }
 
-  getCustomers = async (params: TParams): Promise<TGetCustomersDB> => {
+  getAll: CustomersAllFn = async params => {
     const startTime = Date.now();
     const { id, companyName, contactName, contactTitle, city, country, customerId } = this.table;
     const { limit, offset } = params;
@@ -62,21 +47,20 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
     return { sqlLog, ...elementAndPage, customers: queryCustomers };
   };
 
-  getCustomerId = async (searchId: string): Promise<TGetCustomerIdResponseDB> => {
+  getOneById: CustomersOneByIdFn = async searchId => {
     const startTime = Date.now();
     const { customerId } = this.table;
     const customerPromise = this.db.select().from(this.table).where(eq(customerId, searchId));
     const definitionQueryStatement = this.getQueryStringAndLog(customerPromise);
     const [customer, sqlLogString] = await Promise.all([customerPromise, definitionQueryStatement]);
 
-    return { customer: customer[0], sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)] };
+    return {
+      customer: customer[0],
+      sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)],
+    };
   };
 
-  find = async (
-    params: TParams,
-    searchValue: string,
-    searchField?: string
-  ): Promise<TSearchCustomersResponse> => {
+  find: CustomersFindFn = async (params, searchValue, searchField) => {
     const startTime = Date.now();
     const { companyName, contactName, contactTitle, phone, id, customerId } = this.table;
     const searchColumnName = this.determineSearchField(searchField);
@@ -111,7 +95,7 @@ export class CustomersDB extends TableDB<TCustomers, TableCustomers> {
     return {
       sqlLog,
       tableName: 'customers',
-      searchColumnName,
+      searchColumnName: searchField || 'companyName',
       ...elementAndPage,
       data: searchDataCustomer,
     };

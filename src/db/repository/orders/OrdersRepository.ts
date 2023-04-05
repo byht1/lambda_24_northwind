@@ -1,59 +1,16 @@
-import { eq } from 'drizzle-orm/expressions';
+import { TableDB } from '../tableDB/tableDB.service';
+import { TableOrders, customers, orderDetails, orders, shippers } from 'db/schema';
+import { IOrdersRepository, OrdersAllFn, OrdersOneByIdFn } from './type';
 import { sql } from 'drizzle-orm';
-
-import { customers, orderDetails, orders, shippers, TableOrders, TOrders } from 'db/schema';
-import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { CalculateExecutionTime } from 'helpers';
+import { eq } from 'drizzle-orm/expressions';
 
-type TOrdersResponse = {
-  orderId: number;
-  id: string;
-  totalPrice: number;
-  quantity: number;
-  products: number;
-  shippedDate: string | null;
-  shipName: string;
-  shipCountry: string;
-  shipCity: string;
-};
-
-export type TGetOrdersDB = TCalcPage & {
-  sqlLog: CalculateExecutionTime[];
-  orders: TOrdersResponse[];
-};
-
-export type TOrderId = {
-  id: string;
-  orderId: number;
-  orderDate: string;
-  requiredDate: string;
-  shippedDate: string | null;
-  freight: string;
-  shipAddress: string;
-  shipCity: string;
-  shipRegion: string | null;
-  shipPostalCode: string | null;
-  shipCountry: string;
-  shipVia: string | null;
-  shipPhone: string | null;
-  shipName: string;
-  customerId: string | null;
-  totalPrice: number;
-  quantity: number;
-  products: number;
-};
-
-export type TOrderIdResponseDB = {
-  order: TOrderId;
-  sqlLog: CalculateExecutionTime;
-};
-
-export class OrderDB extends TableDB<TOrders, TableOrders> {
+export class OrdersRepository extends TableDB<TableOrders> implements IOrdersRepository {
   constructor() {
     super(orders);
   }
 
-  getOrders = async (params: TParams): Promise<TGetOrdersDB> => {
+  getAll: OrdersAllFn = async params => {
     const startTime = Date.now();
     const { id, orderId, shippedDate, shipName, shipCity, shipCountry } = this.table;
     const { limit, offset } = params;
@@ -98,7 +55,7 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
     return { sqlLog, ...elementAndPage, orders: queryOrders };
   };
 
-  getOrderById = async (searchId: number): Promise<TOrderIdResponseDB> => {
+  getOneById: OrdersOneByIdFn = async searchId => {
     const startTime = Date.now();
     const { id, orderId, shipVia, _, employeeId, shipName, ...order } = this.table;
     const queryOrderPromise = this.db
@@ -140,7 +97,7 @@ export class OrderDB extends TableDB<TOrders, TableOrders> {
 
     return {
       order: queryOrder[0],
-      sqlLog: new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)],
     };
   };
 }

@@ -1,24 +1,26 @@
-import { CustomersDB } from 'db/services/CustomersDB.service';
-import { ProductDB } from 'db/services/ProductDB.service';
-import { TQuerySearch } from './search.controller';
-import { formatQueryParams } from 'modules/helpers';
+import {
+  CustomerRepository,
+  ProductsRepository,
+  TCustomersFindRes,
+  TProductsFindRes,
+} from 'db/repository';
 import { createError } from 'helpers';
-import { TParams } from 'db/services/tableDB.service';
-import { TSearchCustomersResponse } from 'db/services/customers/type';
-import { TSearchProductsResponse } from 'db/services/products/type';
+import { formatQueryParams } from 'modules/helpers';
+import { TQuerySearch } from './search.controller';
+import { TParams } from 'db/repository/type';
+
+type TParamsSearch = [TParams, string, string];
+type TTableName = 'customersDB' | 'productDB';
+export type TFindResponse = TCustomersFindRes | TProductsFindRes;
 
 interface ISearchService {
   getFind: (...args: [TQuerySearch]) => Promise<TFindResponse>;
 }
 
-type TParamsSearch = [TParams, string, string];
-type TTableName = 'customersDB' | 'productDB';
-export type TFindResponse = TSearchCustomersResponse | TSearchProductsResponse;
-
 export class SearchService implements ISearchService {
   constructor(
-    private productDB: ProductDB = new ProductDB(),
-    private customersDB: CustomersDB = new CustomersDB()
+    private productDB: ProductsRepository = new ProductsRepository(),
+    private customersDB: CustomerRepository = new CustomerRepository()
   ) {}
 
   getFind = async (query: TQuerySearch): Promise<TFindResponse> => {

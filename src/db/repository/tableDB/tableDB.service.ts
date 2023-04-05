@@ -1,64 +1,11 @@
 import { getDrizzle } from 'db/connectDB';
-import {
-  TableCategories,
-  TableCustomers,
-  TableEmployees,
-  TableEmployeesTerritories,
-  TableOrderDetails,
-  TableOrders,
-  TableProducts,
-  TableRegions,
-  TableShippers,
-  TableSupplies,
-  TableTerritories,
-} from 'db/schema';
-import { DatabaseLogger } from './DatabaseLogger';
+import { DatabaseLogger } from '../DatabaseLogger';
 import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime } from 'helpers';
 import { SubqueryWithSelection } from 'drizzle-orm/pg-core/subquery';
-import { PgSelect } from 'drizzle-orm/pg-core';
-import { GetSelectTableName } from 'drizzle-orm/query-builders/select.types';
-import { SQL } from 'drizzle-orm/sql';
+import { TCountPgSelect, TMaxElementsCountResponse, TTable } from './type';
 
-export type TParams = {
-  offset: number;
-  limit: number;
-};
-
-type TTable<T> = T extends
-  | TableCategories
-  | TableCustomers
-  | TableEmployees
-  | TableEmployeesTerritories
-  | TableOrderDetails
-  | TableOrders
-  | TableProducts
-  | TableRegions
-  | TableShippers
-  | TableSupplies
-  | TableTerritories
-  ? T
-  : never;
-
-type TCountPgSelect<T> = PgSelect<
-  GetSelectTableName<TTable<T>>,
-  {
-    count: SQL<number>;
-  },
-  'partial',
-  any
->;
-
-export type TCalcPage = {
-  totalElementsFromDB: number;
-  maxPage: number;
-};
-
-export type TMaxElementsCountResponse = TCalcPage & {
-  sqlLog: CalculateExecutionTime;
-};
-
-export class TableDB<T, D> extends DatabaseLogger {
+export class TableDB<D> extends DatabaseLogger {
   public columnsName: Array<keyof typeof this.table>;
   private startTime: number = Date.now();
 
@@ -70,7 +17,7 @@ export class TableDB<T, D> extends DatabaseLogger {
   sqGetMaxElementsCount = async <B = any>(
     sq: SubqueryWithSelection<B, 'sq'>,
     limit: number
-  ): Promise<TMaxElementsCountResponse | any> => {
+  ): Promise<TMaxElementsCountResponse> => {
     this.newStartTime();
     const maxDBElementsPromise = this.db
       .with(sq)

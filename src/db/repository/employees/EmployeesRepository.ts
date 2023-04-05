@@ -1,59 +1,29 @@
-import { employees, employeesFiles, TableEmployees, TEmployees } from 'db/schema';
-import { TableDB, TCalcPage, TParams } from './tableDB.service';
+import { TableEmployees, employees, employeesFiles } from 'db/schema';
+import { TableDB } from '../tableDB/tableDB.service';
+import { EmployeesAllFn, EmployeesOneByIdFn, IEmployeesRepository } from './type';
 import { CalculateExecutionTime } from 'helpers';
-import { eq } from 'drizzle-orm/expressions';
 import { sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm/expressions';
 
-export type TGetEmployees = Pick<
-  TEmployees,
-  'id' | 'lastName' | 'firstName' | 'title' | 'city' | 'homePhone' | 'country' | 'employeeId'
->;
-
-export type TGetEmployeesDB = TCalcPage & {
-  sqlLog: CalculateExecutionTime[];
-  employees: TGetEmployees[];
-};
-
-type TReportsTo = {
-  employeeId: number;
-  name: string;
-};
-
-type TEmployeesById = {
-  id: string;
-  title: string | null;
-  titleOfCourtesy: string | null;
-  birthDate: string | null;
-  hireDate: string | null;
-  address: string | null;
-  city: string | null;
-  region: string | null;
-  postalCode: string | null;
-  country: string | null;
-  homePhone: string | null;
-  extension: number | null;
-  notes: string | null;
-  name: string;
-  reportsTo: TReportsTo | null;
-  employeeId: number;
-};
-
-export type TEmployeeDBResponse = {
-  employee: TEmployeesById;
-  sqlLog: CalculateExecutionTime[];
-};
-
-export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
+export class EmployeesRepository extends TableDB<TableEmployees> implements IEmployeesRepository {
   constructor() {
     super(employees);
   }
 
-  getEmployees = async (params: TParams): Promise<TGetEmployeesDB> => {
+  getAll: EmployeesAllFn = async params => {
     const startTime = Date.now();
     const { id, lastName, firstName, title, city, homePhone, country, employeeId } = this.table;
     const { limit, offset } = params;
     const queryEmployeesPromise = this.db
-      .select({ id, lastName, firstName, title, city, homePhone, country, employeeId })
+      .select({
+        id,
+        title,
+        city,
+        homePhone,
+        country,
+        employeeId,
+        name: sql<string>`CONCAT(${firstName}, ' ', ${lastName})`,
+      })
       .from(this.table)
       .limit(limit)
       .offset(offset)
@@ -77,7 +47,7 @@ export class EmployeesDB extends TableDB<TEmployees, TableEmployees> {
     return { sqlLog, ...elementAndPage, employees: queryEmployees };
   };
 
-  getEmployeeById = async (searchId: number): Promise<TEmployeeDBResponse> => {
+  getOneById: EmployeesOneByIdFn = async searchId => {
     const startTime = Date.now();
     const { employeeId, _, reportsTo, firstName, lastName, ...column } = this.table;
     const queryEmployeePromise = this.db

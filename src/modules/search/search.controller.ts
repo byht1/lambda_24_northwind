@@ -1,6 +1,4 @@
-import { TParamsId, TQuery } from 'modules/type';
 import { TRouterFn } from 'type';
-import { TGetProductByIdResponseDB, TGetProductsDB } from 'db/services/ProductDB.service';
 import { SearchService, TFindResponse } from './search.service';
 
 export type TQuerySearch = {

@@ -1,30 +1,19 @@
-import { orderDetails, products, TableOrderDetails, TOrderDetails } from 'db/schema';
-import { TableDB } from './tableDB.service';
-import { eq } from 'drizzle-orm/expressions';
+import { TableOrderDetails, orderDetails, products } from 'db/schema';
+import { TableDB } from '../tableDB/tableDB.service';
+import { IOrderDetailsRepository, OrdersDetailsByIdFn } from './type';
 import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime } from 'helpers';
+import { eq } from 'drizzle-orm/expressions';
 
-export type TOrderDerailsById = {
-  id: string;
-  totalPrice: number;
-  quantity: number;
-  unitPrice: string;
-  discount: string;
-  productName: string | null;
-  productId: number;
-};
-
-export type TOrderDerailsIdResponse = {
-  sqlLog: CalculateExecutionTime;
-  orderDetails: TOrderDerailsById[];
-};
-
-export class OrderDetailsDB extends TableDB<TOrderDetails, TableOrderDetails> {
+export class OrderDetailsRepository
+  extends TableDB<TableOrderDetails>
+  implements IOrderDetailsRepository
+{
   constructor() {
     super(orderDetails);
   }
 
-  getById = async (searchId: number): Promise<TOrderDerailsIdResponse> => {
+  getById: OrdersDetailsByIdFn = async searchId => {
     const startTime = Date.now();
     const { productId, quantity, unitPrice, id, orderId, discount } = this.table;
 
@@ -50,6 +39,6 @@ export class OrderDetailsDB extends TableDB<TOrderDetails, TableOrderDetails> {
       definitionQueryStatement,
     ]);
 
-    return { orderDetails, sqlLog: new CalculateExecutionTime(startTime, sqlLogString) };
+    return { orderDetails, sqlLog: [new CalculateExecutionTime(startTime, sqlLogString)] };
   };
 }

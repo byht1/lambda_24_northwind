@@ -1,4 +1,4 @@
-import { TParams } from 'db/services/tableDB.service';
+import { TParams } from 'db/repository/type';
 import { TQuery } from 'modules/type';
 
 export const formatQueryParams = (params: TQuery): TParams => {

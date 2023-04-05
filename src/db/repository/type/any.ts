@@ -1,5 +1,10 @@
 import { CalculateExecutionTime } from 'helpers';
 
+export type TParams = {
+  offset: number;
+  limit: number;
+};
+
 export type TDatabaseLogger = {
   sqlLog: CalculateExecutionTime[];
 };
@@ -9,9 +14,4 @@ export type TCalcPage = {
   maxPage: number;
 };
 
-export type TSearchRepositoryResponse<N extends string, D> = TCalcPage &
-  TDatabaseLogger & {
-    tableName: N;
-    searchColumnName: string;
-    data: D[];
-  };
+export type TCalcProductsAndPrise = { totalPrice: number; quantity: number; products: number };

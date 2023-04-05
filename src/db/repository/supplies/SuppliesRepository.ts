@@ -1,43 +1,15 @@
-import { eq } from 'drizzle-orm/expressions';
-import { supplies, TableSupplies, TSupplies } from '../schema/supplies.schema';
-import { TableDB, TCalcPage, TParams } from './tableDB.service';
+import { TableSupplies, supplies } from 'db/schema';
+import { TableDB } from '../tableDB/tableDB.service';
+import { ISuppliesRepository, SuppliesAllFn, SuppliesOneByIdFn } from './type';
 import { CalculateExecutionTime } from 'helpers';
+import { eq } from 'drizzle-orm/expressions';
 
-export type TGetSupplies = Pick<
-  TSupplies,
-  'id' | 'companyName' | 'contactTitle' | 'city' | 'country' | 'contactName' | 'supplierId'
->;
-
-export type TGetProductsDB = TCalcPage & {
-  sqlLog: CalculateExecutionTime[];
-  supplies: TGetSupplies[];
-};
-
-export type TSupplierByIdResponse = {
-  supplier: {
-    id: string;
-    supplierId: number;
-    companyName: string;
-    contactName: string;
-    contactTitle: string;
-    address: string;
-    city: string;
-    region: string | null;
-    postalCode: string;
-    country: string;
-    phone: string;
-    fax: string | null;
-    homePage: string | null;
-  };
-  sqlLog: CalculateExecutionTime[];
-};
-
-export class SuppliesDB extends TableDB<TSupplies, TableSupplies> {
+export class SuppliesRepository extends TableDB<TableSupplies> implements ISuppliesRepository {
   constructor() {
     super(supplies);
   }
 
-  getSupplies = async (params: TParams): Promise<TGetProductsDB> => {
+  getAll: SuppliesAllFn = async params => {
     const startTime = Date.now();
     const { id, contactTitle, city, country, companyName, contactName, supplierId } = this.table;
     const { limit, offset } = params;
@@ -66,7 +38,7 @@ export class SuppliesDB extends TableDB<TSupplies, TableSupplies> {
     return { sqlLog, ...elementAndPage, supplies: querySupplies };
   };
 
-  getSupplierById = async (searchId: number): Promise<TSupplierByIdResponse> => {
+  getOneById: SuppliesOneByIdFn = async searchId => {
     const startTime = Date.now();
     const { supplierId } = this.table;
     const querySupplierPromise = this.db.select().from(this.table).where(eq(supplierId, searchId));

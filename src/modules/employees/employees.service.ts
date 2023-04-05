@@ -1,43 +1,24 @@
-import { TEmployees } from 'db/schema';
-import { EmployeesDB, TEmployeeDBResponse } from 'db/services/EmployeesDB.service';
-import { TCalcPage } from 'db/services/tableDB.service';
+import { EmployeesRepository, TEmployeesAllRes, TEmployeesOneByIdRes } from 'db/repository';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
 
-type TEmployeesDB = {
-  name: string;
-  id: string;
-  title: string | null;
-  city: string | null;
-  country: string | null;
-  homePhone: string | null;
-};
-
-export type TGetEmployees = TCalcPage & {
-  employees: TEmployeesDB[];
-};
-
 interface IEmployeesService {
-  getEmployees: (...args: [TQuery]) => Promise<TGetEmployees>;
-  getEmployeeId: (...args: [number]) => Promise<TEmployeeDBResponse>;
+  getEmployees: (...args: [TQuery]) => Promise<TEmployeesAllRes>;
+  getEmployeeId: (...args: [number]) => Promise<TEmployeesOneByIdRes>;
 }
 
 export class EmployeesService implements IEmployeesService {
-  constructor(private employeesDB: EmployeesDB = new EmployeesDB()) {}
+  constructor(private employeesDB: EmployeesRepository = new EmployeesRepository()) {}
 
-  getEmployees = async (query: TQuery): Promise<TGetEmployees> => {
+  getEmployees = async (query: TQuery): Promise<TEmployeesAllRes> => {
     const params = formatQueryParams(query);
-    const employees = await this.employeesDB.getEmployees(params);
-    const updateDataEmployees = employees.employees.map(({ firstName, lastName, ...employee }) => ({
-      ...employee,
-      name: firstName + ' ' + lastName,
-    }));
+    const employees = await this.employeesDB.getAll(params);
 
-    return { ...employees, employees: updateDataEmployees };
+    return employees;
   };
 
-  getEmployeeId = async (searchId: number): Promise<TEmployeeDBResponse> => {
-    const employee = await this.employeesDB.getEmployeeById(searchId);
+  getEmployeeId = async (searchId: number): Promise<TEmployeesOneByIdRes> => {
+    const employee = await this.employeesDB.getOneById(searchId);
 
     return employee;
   };

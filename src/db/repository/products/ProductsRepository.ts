@@ -1,32 +1,15 @@
+import { TableProducts, products, supplies } from 'db/schema';
+import { TableDB } from '../tableDB/tableDB.service';
+import { IProductRepository, ProductsAllFn, ProductsFindFn, ProductsOneByIdFn } from './type';
 import { CalculateExecutionTime } from 'helpers';
-import { products, TableProducts, TProducts } from '../schema/products.schema';
-import { TableDB, TCalcPage, TParams } from './tableDB.service';
 import { eq, like } from 'drizzle-orm/expressions';
-import { supplies } from 'db/schema';
-import { TSearchProductsResponse } from './products/type';
 
-export type TGetProducts = Pick<
-  TProducts,
-  'id' | 'productName' | 'quantityPerUnit' | 'unitPrice' | 'unitsInStock' | 'unitsOnOrder'
->;
-type TGetProductId = Omit<TProducts, 'categoryId'>;
-
-export type TGetProductsDB = TCalcPage & {
-  sqlLog: CalculateExecutionTime[];
-  products: TGetProducts[];
-};
-
-export type TGetProductByIdResponseDB = {
-  product: TGetProductId;
-  sqlLog: CalculateExecutionTime[];
-};
-
-export class ProductDB extends TableDB<TProducts, TableProducts> {
+export class ProductsRepository extends TableDB<TableProducts> implements IProductRepository {
   constructor() {
     super(products);
   }
 
-  getProducts = async (params: TParams): Promise<TGetProductsDB> => {
+  getAll: ProductsAllFn = async params => {
     const startTime = Date.now();
     const { id, productName, quantityPerUnit, unitPrice, unitsInStock, unitsOnOrder, productId } =
       this.table;
@@ -64,7 +47,7 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
     return { sqlLog, ...elementAndPage, products: queryPromise };
   };
 
-  getProductById = async (searchId: number): Promise<TGetProductByIdResponseDB> => {
+  getOneById: ProductsOneByIdFn = async searchId => {
     const startTime = Date.now();
     const { productId, supplierId, categoryId, _, ...column } = this.table;
     const queryProductPromise = this.db
@@ -90,11 +73,7 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
     };
   };
 
-  find = async (
-    params: TParams,
-    searchValue: string,
-    searchField?: string
-  ): Promise<TSearchProductsResponse> => {
+  find: ProductsFindFn = async (params, searchValue, searchField) => {
     const startTime = Date.now();
     const { quantityPerUnit, unitPrice, unitsInStock, productName, id, categoryId } = this.table;
     const searchColumnName = this.determineSearchField(searchField);
@@ -129,7 +108,7 @@ export class ProductDB extends TableDB<TProducts, TableProducts> {
     return {
       sqlLog,
       tableName: 'products',
-      searchColumnName,
+      searchColumnName: searchField || 'productName',
       ...elementAndPage,
       data: searchDataCustomer,
     };
