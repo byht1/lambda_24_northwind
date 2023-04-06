@@ -1,4 +1,4 @@
-import { eq, like } from 'drizzle-orm/expressions';
+import { eq, ilike } from 'drizzle-orm/expressions';
 import { CalculateExecutionTime } from 'helpers';
 
 import { TableCustomers, customers } from 'db/schema';
@@ -31,13 +31,6 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
 
     const maxDBElements = this.getMaxElementsCount(limit);
     const definitionQueryStatement = this.getQueryStringAndLog(queryCustomersPromise);
-
-    // const test = await this.allAwait(
-    //   maxDBElements,
-    //   queryCustomersPromise,
-    //   definitionQueryStatement,
-    //   'customers'
-    // );
 
     const [totalElementsAndPages, queryCustomers, sqlLogString] = await Promise.all([
       maxDBElements,
@@ -75,13 +68,13 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
     const sq = this.db
       .select()
       .from(this.table)
-      .where(like(searchColumnName, `%${searchValue}%`))
+      .where(ilike(searchColumnName, `%${searchValue}%`))
       .as('sq');
 
     const searchDataCustomerPromise = this.db
       .select({ companyName, contactName, contactTitle, phone, id, customerId })
       .from(this.table)
-      .where(like(searchColumnName, `%${searchValue}%`))
+      .where(ilike(searchColumnName, `%${searchValue}%`))
       .limit(limit)
       .offset(offset);
     const maxDBElements = this.sqGetMaxElementsCount(sq, limit);

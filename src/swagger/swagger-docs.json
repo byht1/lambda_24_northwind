@@ -416,7 +416,6 @@
           }
         }
       },
-
       "SqlLog": {
         "type": "array",
         "items": {
@@ -1076,7 +1075,6 @@
           }
         }
       },
-
       "CustomerOrProductData": {
         "oneOf": [
           {
@@ -1162,7 +1160,7 @@
                   "type": "string",
                   "example": "b6aa1eff-6f05-4531-ab9c-12c63db20279"
                 },
-                "categoryId": {
+                "productId": {
                   "type": "integer",
                   "example": 1
                 },

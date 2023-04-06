@@ -2,7 +2,7 @@ import { TableProducts, products, supplies } from 'db/schema';
 import { TableDB } from '../tableDB/tableDB.service';
 import { IProductRepository, ProductsAllFn, ProductsFindFn, ProductsOneByIdFn } from './type';
 import { CalculateExecutionTime } from 'helpers';
-import { eq, like } from 'drizzle-orm/expressions';
+import { eq, ilike, like } from 'drizzle-orm/expressions';
 
 export class ProductsRepository extends TableDB<TableProducts> implements IProductRepository {
   constructor() {
@@ -75,19 +75,19 @@ export class ProductsRepository extends TableDB<TableProducts> implements IProdu
 
   find: ProductsFindFn = async (params, searchValue, searchField) => {
     const startTime = Date.now();
-    const { quantityPerUnit, unitPrice, unitsInStock, productName, id, categoryId } = this.table;
+    const { quantityPerUnit, unitPrice, unitsInStock, productName, id, productId } = this.table;
     const searchColumnName = this.determineSearchField(searchField);
     const { limit, offset } = params;
     const sq = this.db
       .select()
       .from(this.table)
-      .where(like(searchColumnName, `%${searchValue}%`))
+      .where(ilike(searchColumnName, `%${searchValue}%`))
       .as('sq');
 
     const searchDataCustomerPromise = this.db
-      .select({ quantityPerUnit, unitPrice, unitsInStock, productName, id, categoryId })
+      .select({ quantityPerUnit, unitPrice, unitsInStock, productName, id, productId })
       .from(this.table)
-      .where(like(searchColumnName, `%${searchValue}%`))
+      .where(ilike(searchColumnName, `%${searchValue}%`))
       .limit(limit)
       .offset(offset);
     const maxDBElements = this.sqGetMaxElementsCount(sq, limit);

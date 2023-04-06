@@ -41,5 +41,5 @@ type TProductOneByIdResponse = Omit<TProducts, 'categoryId'> & {
 
 type TSearchProducts = Pick<
   TProducts,
-  'id' | 'categoryId' | 'quantityPerUnit' | 'unitPrice' | 'unitsInStock' | 'productName'
+  'id' | 'productId' | 'quantityPerUnit' | 'unitPrice' | 'unitsInStock' | 'productName'
 >;
