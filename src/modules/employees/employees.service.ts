@@ -1,4 +1,5 @@
 import { EmployeesRepository, TEmployeesAllRes, TEmployeesOneByIdRes } from 'db/repository';
+import { createError, notFoundMessage } from 'helpers';
 import { formatQueryParams } from 'modules/helpers';
 import { TQuery } from 'modules/type';
 
@@ -19,6 +20,10 @@ export class EmployeesService implements IEmployeesService {
 
   getEmployeeId = async (searchId: number): Promise<TEmployeesOneByIdRes> => {
     const employee = await this.employeesDB.getOneById(searchId);
+
+    if (!employee.employee) {
+      throw createError(404, notFoundMessage);
+    }
 
     return employee;
   };
