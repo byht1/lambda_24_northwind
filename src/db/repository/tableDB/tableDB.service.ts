@@ -4,6 +4,8 @@ import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime } from 'helpers';
 import { SubqueryWithSelection } from 'drizzle-orm/pg-core/subquery';
 import { TCountPgSelect, TMaxElementsCountResponse, TTable } from './type';
+import { CustomersAllFn } from '../customers/type';
+import { PgSelect } from 'drizzle-orm/pg-core';
 
 export class TableDB<D> extends DatabaseLogger {
   public columnsName: Array<keyof typeof this.table>;
@@ -14,33 +16,36 @@ export class TableDB<D> extends DatabaseLogger {
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
 
-  // allAwait = async <M extends Promise<TMaxElementsCountResponse>, T, S extends Promise<string>>(
-  //   maxDBElements: M,
-  //   query: T,
-  //   sql: S,
-  //   fieldName: string
-  // ) => {
-  //   const startTime = Date.now();
-  //   const [totalElementsAndPages, queryResponse, sqlLogString] = await Promise.all([
-  //     maxDBElements,
-  //     query,
-  //     sql,
-  //   ]);
+  fetchDataWithLog= async <
+    M extends Promise<TMaxElementsCountResponse>,
+    T extends PgSelect<any, any, any>
+  >(
+    maxDBElements: M,
+    query: T,
+    fieldName: string
+  ) => {
+    const startTime = Date.now();
+    const definitionQueryStatement = this.getQueryStringAndLog(query);
+    const [totalElementsAndPages, queryResponse, sqlLogString] = await Promise.all([
+      maxDBElements,
+      query,
+      definitionQueryStatement,
+    ]);
 
-  //   const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-  //   const sqlLog = [
-  //     new CalculateExecutionTime(startTime, sqlLogString),
-  //     sqlLogTotalElementsAndPages,
-  //   ];
+    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
+    const sqlLog = [
+      new CalculateExecutionTime(startTime, sqlLogString),
+      sqlLogTotalElementsAndPages,
+    ];
 
-  //   return { sqlLog, ...elementAndPage, [fieldName]: queryResponse };
-  // };
+    return { sqlLog, ...elementAndPage, [fieldName]: queryResponse };
+  };
 
   sqGetMaxElementsCount = async <B = any>(
     sq: SubqueryWithSelection<B, 'sq'>,
     limit: number
   ): Promise<TMaxElementsCountResponse> => {
-    this.newStartTime();
+    this.restart();
     const maxDBElementsPromise = this.db
       .with(sq)
       .select({ count: sql<number>`count(*)`.mapWith(it => +it) })
@@ -50,29 +55,15 @@ export class TableDB<D> extends DatabaseLogger {
   };
 
   getMaxElementsCount = async (limit: number): Promise<TMaxElementsCountResponse> => {
-    const startTime = Date.now();
+    this.restart();
     const maxDBElementsPromise = this.db
       .select({ count: sql<number>`count(*)`.mapWith(it => +it) })
       .from(this.table);
 
-    this.calcMaxElementCount(maxDBElementsPromise, limit);
-
-    const definitionQueryStatement = this.getQueryStringAndLog(maxDBElementsPromise);
-    const [maxDBElements, sqlLogString] = await Promise.all([
-      maxDBElementsPromise,
-      definitionQueryStatement,
-    ]);
-    const totalElementsFromDB = maxDBElements[0].count;
-    const maxPage = Math.ceil(totalElementsFromDB / limit);
-
-    return {
-      totalElementsFromDB,
-      maxPage,
-      sqlLog: new CalculateExecutionTime(startTime, sqlLogString),
-    };
+    return this.calcMaxElementCount(maxDBElementsPromise, limit);
   };
 
-  private newStartTime = () => (this.startTime = Date.now());
+  private restart = () => (this.startTime = Date.now());
 
   private calcMaxElementCount = async (
     pgSelect: TCountPgSelect<D>,

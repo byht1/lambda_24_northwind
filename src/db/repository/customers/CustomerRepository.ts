@@ -11,7 +11,6 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
   }
 
   getAll: CustomersAllFn = async params => {
-    const startTime = Date.now();
     const { id, companyName, contactName, contactTitle, city, country, customerId } = this.table;
     const { limit, offset } = params;
     const queryCustomersPromise = this.db
@@ -30,21 +29,13 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
       .orderBy(companyName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(queryCustomersPromise);
-
-    const [totalElementsAndPages, queryCustomers, sqlLogString] = await Promise.all([
+    const { sqlLog, customers, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       queryCustomersPromise,
-      definitionQueryStatement,
-    ]);
+      'customers'
+    );
 
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
-
-    return { sqlLog, ...elementAndPage, customers: queryCustomers };
+    return { sqlLog, ...elementAndPage, customers };
   };
 
   getOneById: CustomersOneByIdFn = async searchId => {

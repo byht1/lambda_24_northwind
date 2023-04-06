@@ -11,7 +11,6 @@ export class EmployeesRepository extends TableDB<TableEmployees> implements IEmp
   }
 
   getAll: EmployeesAllFn = async params => {
-    const startTime = Date.now();
     const { id, lastName, firstName, title, city, homePhone, country, employeeId } = this.table;
     const { limit, offset } = params;
     const queryEmployeesPromise = this.db
@@ -30,21 +29,13 @@ export class EmployeesRepository extends TableDB<TableEmployees> implements IEmp
       .orderBy(firstName, lastName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(queryEmployeesPromise);
-
-    const [totalElementsAndPages, queryEmployees, sqlLogString] = await Promise.all([
+    const { sqlLog, employees, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       queryEmployeesPromise,
-      definitionQueryStatement,
-    ]);
+      'employees'
+    );
 
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
-
-    return { sqlLog, ...elementAndPage, employees: queryEmployees };
+    return { sqlLog, ...elementAndPage, employees };
   };
 
   getOneById: EmployeesOneByIdFn = async searchId => {

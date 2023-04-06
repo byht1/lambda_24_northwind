@@ -10,7 +10,6 @@ export class SuppliesRepository extends TableDB<TableSupplies> implements ISuppl
   }
 
   getAll: SuppliesAllFn = async params => {
-    const startTime = Date.now();
     const { id, contactTitle, city, country, companyName, contactName, supplierId } = this.table;
     const { limit, offset } = params;
     const querySuppliesPromise = this.db
@@ -21,21 +20,13 @@ export class SuppliesRepository extends TableDB<TableSupplies> implements ISuppl
       .orderBy(companyName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(querySuppliesPromise);
-
-    const [totalElementsAndPages, querySupplies, sqlLogString] = await Promise.all([
+    const { sqlLog, supplies, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       querySuppliesPromise,
-      definitionQueryStatement,
-    ]);
+      'supplies'
+    );
 
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
-
-    return { sqlLog, ...elementAndPage, supplies: querySupplies };
+    return { sqlLog, ...elementAndPage, supplies };
   };
 
   getOneById: SuppliesOneByIdFn = async searchId => {

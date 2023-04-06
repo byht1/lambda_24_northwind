@@ -11,7 +11,6 @@ export class OrdersRepository extends TableDB<TableOrders> implements IOrdersRep
   }
 
   getAll: OrdersAllFn = async params => {
-    const startTime = Date.now();
     const { id, orderId, shippedDate, shipName, shipCity, shipCountry } = this.table;
     const { limit, offset } = params;
     const queryOrdersPromise = this.db
@@ -37,22 +36,13 @@ export class OrdersRepository extends TableDB<TableOrders> implements IOrdersRep
       .offset(offset);
 
     const maxDBElements = this.getMaxElementsCount(limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(queryOrdersPromise);
-
-    const [totalElementsAndPages, queryOrders, sqlLogString] = await Promise.all([
+    const { sqlLog, orders, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       queryOrdersPromise,
-      definitionQueryStatement,
-    ]);
+      'orders'
+    );
 
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
-
-    return { sqlLog, ...elementAndPage, orders: queryOrders };
+    return { sqlLog, ...elementAndPage, orders };
   };
 
   getOneById: OrdersOneByIdFn = async searchId => {

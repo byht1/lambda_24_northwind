@@ -10,7 +10,6 @@ export class ProductsRepository extends TableDB<TableProducts> implements IProdu
   }
 
   getAll: ProductsAllFn = async params => {
-    const startTime = Date.now();
     const { id, productName, quantityPerUnit, unitPrice, unitsInStock, unitsOnOrder, productId } =
       this.table;
     const { limit, offset } = params;
@@ -30,21 +29,13 @@ export class ProductsRepository extends TableDB<TableProducts> implements IProdu
       .orderBy(productName);
 
     const maxDBElements = this.getMaxElementsCount(limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(queryProductsPromise);
-
-    const [totalElementsAndPages, queryPromise, sqlLogString] = await Promise.all([
+    const { sqlLog, products, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       queryProductsPromise,
-      definitionQueryStatement,
-    ]);
+      'products'
+    );
 
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
-
-    return { sqlLog, ...elementAndPage, products: queryPromise };
+    return { sqlLog, ...elementAndPage, products };
   };
 
   getOneById: ProductsOneByIdFn = async searchId => {
@@ -90,6 +81,7 @@ export class ProductsRepository extends TableDB<TableProducts> implements IProdu
       .where(ilike(searchColumnName, `%${searchValue}%`))
       .limit(limit)
       .offset(offset);
+
     const maxDBElements = this.sqGetMaxElementsCount(sq, limit);
     const definitionQueryStatement = this.getQueryStringAndLog(searchDataCustomerPromise);
 
