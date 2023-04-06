@@ -65,7 +65,6 @@ export class ProductsRepository extends TableDB<TableProducts> implements IProdu
   };
 
   find: ProductsFindFn = async (params, searchValue, searchField) => {
-    const startTime = Date.now();
     const { quantityPerUnit, unitPrice, unitsInStock, productName, id, productId } = this.table;
     const searchColumnName = this.determineSearchField(searchField);
     const { limit, offset } = params;
@@ -83,26 +82,18 @@ export class ProductsRepository extends TableDB<TableProducts> implements IProdu
       .offset(offset);
 
     const maxDBElements = this.sqGetMaxElementsCount(sq, limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(searchDataCustomerPromise);
-
-    const [totalElementsAndPages, searchDataCustomer, sqlLogString] = await Promise.all([
+    const { sqlLog, products, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       searchDataCustomerPromise,
-      definitionQueryStatement,
-    ]);
-
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
+      'products'
+    );
 
     return {
       sqlLog,
       tableName: 'products',
       searchColumnName: searchField || 'productName',
       ...elementAndPage,
-      data: searchDataCustomer,
+      data: products,
     };
   };
 

@@ -52,7 +52,6 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
   };
 
   find: CustomersFindFn = async (params, searchValue, searchField) => {
-    const startTime = Date.now();
     const { companyName, contactName, contactTitle, phone, id, customerId } = this.table;
     const searchColumnName = this.determineSearchField(searchField);
     const { limit, offset } = params;
@@ -68,27 +67,20 @@ export class CustomerRepository extends TableDB<TableCustomers> implements ICust
       .where(ilike(searchColumnName, `%${searchValue}%`))
       .limit(limit)
       .offset(offset);
-    const maxDBElements = this.sqGetMaxElementsCount(sq, limit);
-    const definitionQueryStatement = this.getQueryStringAndLog(searchDataCustomerPromise);
 
-    const [totalElementsAndPages, searchDataCustomer, sqlLogString] = await Promise.all([
+    const maxDBElements = this.sqGetMaxElementsCount(sq, limit);
+    const { sqlLog, customers, ...elementAndPage } = await this.fetchDataWithLog(
       maxDBElements,
       searchDataCustomerPromise,
-      definitionQueryStatement,
-    ]);
-
-    const { sqlLog: sqlLogTotalElementsAndPages, ...elementAndPage } = totalElementsAndPages;
-    const sqlLog = [
-      new CalculateExecutionTime(startTime, sqlLogString),
-      sqlLogTotalElementsAndPages,
-    ];
+      'customers'
+    );
 
     return {
       sqlLog,
       tableName: 'customers',
       searchColumnName: searchField || 'companyName',
       ...elementAndPage,
-      data: searchDataCustomer,
+      data: customers,
     };
   };
 
