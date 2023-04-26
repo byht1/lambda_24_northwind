@@ -47,7 +47,7 @@ export class OrdersRepository extends TableDB<TableOrders> implements IOrdersRep
 
   getOneById: OrdersOneByIdFn = async searchId => {
     const startTime = Date.now();
-    const { id, orderId, shipVia, _, employeeId, shipName, ...order } = this.table;
+    const { id, orderId, shipVia, employeeId, shipName, _, ...order } = this.table;
     const queryOrderPromise = this.db
       .select({
         id,

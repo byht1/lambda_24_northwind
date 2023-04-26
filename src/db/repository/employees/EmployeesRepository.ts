@@ -40,7 +40,7 @@ export class EmployeesRepository extends TableDB<TableEmployees> implements IEmp
 
   getOneById: EmployeesOneByIdFn = async searchId => {
     const startTime = Date.now();
-    const { employeeId, _, reportsTo, firstName, lastName, ...column } = this.table;
+    const { employeeId, reportsTo, firstName, lastName, _, ...column } = this.table;
     const queryEmployeePromise = this.db
       .select({
         ...column,
