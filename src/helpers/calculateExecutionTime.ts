@@ -10,6 +10,7 @@ export class CalculateExecutionTime {
   }
 
   private calculateExecutionTimeSecond = (start: number, finishTime: number) => {
-    return (finishTime - start) / 1000;
+    const SECOND_MS = 1000;
+    return (finishTime - start) / SECOND_MS;
   };
 }

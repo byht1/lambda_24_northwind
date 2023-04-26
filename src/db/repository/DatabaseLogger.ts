@@ -9,10 +9,11 @@ export class DatabaseLogger {
     private countOfQueriesInLog = +getEnv('COUNT_OF_QUERIES_IN_LOG', '5') - 1
   ) {}
 
-  getQueryHistory = async () => await readFile(this.databaseLogsPath, { encoding: 'utf8' });
+  protected getQueryHistory = async () =>
+    await readFile(this.databaseLogsPath, { encoding: 'utf8' });
 
   // Any тому що мене не цікавить що там я просто роблю лог запиту до бази даних
-  getQueryStringAndLog = async (request: PgSelect<any, any, any>) => {
+  protected getQueryStringAndLog = async (request: PgSelect<any, any, any>) => {
     const { sql } = request.toSQL();
     await this.logLastSqlQuery(sql);
 

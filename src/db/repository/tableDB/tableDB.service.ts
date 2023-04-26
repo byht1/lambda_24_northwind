@@ -4,7 +4,6 @@ import { sql } from 'drizzle-orm';
 import { CalculateExecutionTime } from 'helpers';
 import { SubqueryWithSelection } from 'drizzle-orm/pg-core/subquery';
 import { TCountPgSelect, TMaxElementsCountResponse, TTable } from './type';
-import { CustomersAllFn } from '../customers/type';
 import { PgSelect } from 'drizzle-orm/pg-core';
 
 export class TableDB<D> extends DatabaseLogger {
@@ -16,7 +15,7 @@ export class TableDB<D> extends DatabaseLogger {
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
 
-  fetchDataWithLog= async <
+  protected fetchDataWithLog = async <
     M extends Promise<TMaxElementsCountResponse>,
     T extends PgSelect<any, any, any>
   >(
@@ -41,7 +40,7 @@ export class TableDB<D> extends DatabaseLogger {
     return { sqlLog, ...elementAndPage, [fieldName]: queryResponse };
   };
 
-  sqGetMaxElementsCount = async <B = any>(
+  protected sqGetMaxElementsCount = async <B = any>(
     sq: SubqueryWithSelection<B, 'sq'>,
     limit: number
   ): Promise<TMaxElementsCountResponse> => {
@@ -54,7 +53,7 @@ export class TableDB<D> extends DatabaseLogger {
     return await this.calcMaxElementCount(maxDBElementsPromise, limit);
   };
 
-  getMaxElementsCount = async (limit: number): Promise<TMaxElementsCountResponse> => {
+  protected getMaxElementsCount = async (limit: number): Promise<TMaxElementsCountResponse> => {
     this.restart();
     const maxDBElementsPromise = this.db
       .select({ count: sql<number>`count(*)`.mapWith(it => +it) })
