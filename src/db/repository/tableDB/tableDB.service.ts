@@ -7,10 +7,10 @@ import { TCountPgSelect, TMaxElementsCountResponse, TTable } from './type';
 import { PgSelect } from 'drizzle-orm/pg-core';
 
 export class TableDB<D> extends DatabaseLogger {
-  public columnsName: Array<keyof typeof this.table>;
+  protected columnsName: Array<keyof typeof this.table>;
   private startTime: number = Date.now();
 
-  constructor(public table: TTable<D>, public db = getDrizzle()) {
+  constructor(protected table: TTable<D>, protected db = getDrizzle()) {
     super();
     this.columnsName = Object.keys(this.table) as Array<keyof typeof this.table>;
   }
